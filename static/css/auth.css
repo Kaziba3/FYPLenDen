@@ -1,0 +1,132 @@
+/* Authentication Pages */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--lighter-green) 0%, var(--white) 100%);
+    padding: 20px;
+}
+
+.auth-card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 480px;
+    overflow: hidden;
+}
+
+.auth-header {
+    background: var(--primary-green);
+    color: var(--white);
+    padding: 30px;
+    text-align: center;
+}
+
+.auth-header h1 {
+    color: var(--white);
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+.auth-header p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0;
+}
+
+.auth-body {
+    padding: 40px;
+}
+
+.auth-form .form-group {
+    margin-bottom: 24px;
+}
+
+.auth-form .form-label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--gray-dark);
+}
+
+.auth-form .form-control {
+    padding: 14px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.auth-form .form-control:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.auth-footer a {
+    color: var(--primary-green);
+    font-weight: 500;
+}
+
+.password-strength {
+    margin-top: 8px;
+}
+
+.strength-bar {
+    height: 4px;
+    background-color: #eee;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s, background-color 0.3s;
+}
+
+.strength-weak {
+    width: 33%;
+    background-color: var(--error-red);
+}
+
+.strength-medium {
+    width: 66%;
+    background-color: var(--warning-orange);
+}
+
+.strength-strong {
+    width: 100%;
+    background-color: var(--success-green);
+}
+
+.kyc-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.kyc-pending {
+    background-color: #FFF3E0;
+    color: var(--warning-orange);
+}
+
+.kyc-verified {
+    background-color: #E8F5E9;
+    color: var(--success-green);
+}
+
+.kyc-rejected {
+    background-color: #FFEBEE;
+    color: var(--error-red);
+}

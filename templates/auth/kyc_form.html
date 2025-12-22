@@ -1,0 +1,461 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}KYC Verification - PeerLend{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+<style>
+    .kyc-progress {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 40px;
+        position: relative;
+    }
+    
+    .kyc-progress::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e0e0e0;
+        z-index: 1;
+    }
+    
+    .progress-step {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        flex: 1;
+    }
+    
+    .step-number {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        color: #666;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-weight: 600;
+    }
+    
+    .progress-step.active .step-number {
+        background: var(--primary-green);
+        color: white;
+    }
+    
+    .step-label {
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .progress-step.active .step-label {
+        color: var(--primary-green);
+        font-weight: 500;
+    }
+    
+    .file-upload {
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        padding: 40px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .file-upload:hover {
+        border-color: var(--primary-green);
+        background: #F9F9F9;
+    }
+    
+    .file-upload i {
+        font-size: 48px;
+        color: var(--gray);
+        margin-bottom: 20px;
+    }
+    
+    .file-upload input {
+        display: none;
+    }
+    
+    .preview-image {
+        max-width: 200px;
+        margin: 20px auto;
+        display: none;
+    }
+    
+    .preview-image img {
+        max-width: 100%;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1><i class="fas fa-id-card"></i> KYC Verification</h1>
+            <p>Complete your verification to start using PeerLend</p>
+        </div>
+        <div class="auth-body">
+            <div class="kyc-progress">
+                <div class="progress-step active">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Personal Info</div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">2</div>
+                    <div class="step-label">ID Proof</div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Income Proof</div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Review</div>
+                </div>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data" class="kyc-form">
+                {% csrf_token %}
+                
+                <div class="tab-content active" id="personal-info">
+                    <h3>Personal Information</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" name="dob" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Gender</label>
+                                <select name="gender" class="form-control" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Address</label>
+                        <textarea name="address" class="form-control" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">City</label>
+                                <input type="text" name="city" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Pincode</label>
+                                <input type="text" name="pincode" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">State</label>
+                        <input type="text" name="state" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Country</label>
+                        <input type="text" name="country" class="form-control" value="India" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">PAN Number</label>
+                        <input type="text" name="pan" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Aadhaar Number</label>
+                        <input type="text" name="aadhaar" class="form-control" required>
+                    </div>
+                    
+                    <div class="text-right">
+                        <button type="button" class="btn btn-primary next-step" data-next="id-proof">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="id-proof">
+                    <h3>ID Proof Upload</h3>
+                    <p class="text-muted">Upload clear images of your documents</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">PAN Card (Front)</label>
+                                <div class="file-upload" onclick="document.getElementById('pan-front').click()">
+                                    <i class="fas fa-file-upload"></i>
+                                    <p>Click to upload PAN Card Front</p>
+                                    <p class="text-muted">Max size: 5MB</p>
+                                    <input type="file" id="pan-front" name="pan_front" accept="image/*">
+                                </div>
+                                <div class="preview-image" id="pan-front-preview"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Aadhaar Card (Front)</label>
+                                <div class="file-upload" onclick="document.getElementById('aadhaar-front').click()">
+                                    <i class="fas fa-file-upload"></i>
+                                    <p>Click to upload Aadhaar Front</p>
+                                    <p class="text-muted">Max size: 5MB</p>
+                                    <input type="file" id="aadhaar-front" name="aadhaar_front" accept="image/*">
+                                </div>
+                                <div class="preview-image" id="aadhaar-front-preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Aadhaar Card (Back)</label>
+                                <div class="file-upload" onclick="document.getElementById('aadhaar-back').click()">
+                                    <i class="fas fa-file-upload"></i>
+                                    <p>Click to upload Aadhaar Back</p>
+                                    <p class="text-muted">Max size: 5MB</p>
+                                    <input type="file" id="aadhaar-back" name="aadhaar_back" accept="image/*">
+                                </div>
+                                <div class="preview-image" id="aadhaar-back-preview"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Selfie with ID</label>
+                                <div class="file-upload" onclick="document.getElementById('selfie').click()">
+                                    <i class="fas fa-camera"></i>
+                                    <p>Click to upload Selfie with ID</p>
+                                    <p class="text-muted">Hold your ID next to your face</p>
+                                    <input type="file" id="selfie" name="selfie" accept="image/*">
+                                </div>
+                                <div class="preview-image" id="selfie-preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary prev-step" data-prev="personal-info">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </button>
+                        <button type="button" class="btn btn-primary next-step" data-next="income-proof">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="income-proof">
+                    <h3>Income Proof</h3>
+                    <p class="text-muted">Upload documents to verify your income source</p>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Employment Type</label>
+                        <select name="employment_type" class="form-control" required>
+                            <option value="">Select Employment Type</option>
+                            <option value="salaried">Salaried</option>
+                            <option value="self_employed">Self Employed</option>
+                            <option value="business">Business</option>
+                            <option value="student">Student</option>
+                            <option value="unemployed">Unemployed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Monthly Income (₹)</label>
+                        <input type="number" name="monthly_income" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Income Proof Document</label>
+                        <div class="file-upload" onclick="document.getElementById('income-proof-file').click()">
+                            <i class="fas fa-file-invoice"></i>
+                            <p>Click to upload Income Proof</p>
+                            <p class="text-muted">Salary slip, Bank statement, ITR, etc.</p>
+                            <input type="file" id="income-proof-file" name="income_proof" accept="image/*,.pdf">
+                        </div>
+                        <div class="preview-image" id="income-proof-preview"></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary prev-step" data-prev="id-proof">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </button>
+                        <button type="button" class="btn btn-primary next-step" data-next="review">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="review">
+                    <h3>Review & Submit</h3>
+                    <p class="text-muted">Please review all information before submission</p>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Personal Information</h4>
+                        </div>
+                        <div class="card-body" id="review-personal"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Uploaded Documents</h4>
+                        </div>
+                        <div class="card-body" id="review-documents"></div>
+                    </div>
+                    
+                    <div class="form-group form-check">
+                        <input type="checkbox" id="kyc-consent" name="kyc_consent" class="form-check-input" required>
+                        <label for="kyc-consent" class="form-check-label">
+                            I declare that all information provided is true and correct to the best of my knowledge
+                        </label>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary prev-step" data-prev="income-proof">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane"></i> Submit KYC
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab navigation
+        const steps = document.querySelectorAll('.progress-step');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        document.querySelectorAll('.next-step').forEach(button => {
+            button.addEventListener('click', function() {
+                const currentTab = this.closest('.tab-content');
+                const nextTabId = this.getAttribute('data-next');
+                
+                currentTab.classList.remove('active');
+                document.getElementById(nextTabId).classList.add('active');
+                
+                // Update progress steps
+                steps.forEach(step => step.classList.remove('active'));
+                const nextStep = Array.from(steps).find(step => 
+                    step.querySelector('.step-label').textContent.toLowerCase().includes(nextTabId.replace('-', ' '))
+                );
+                if (nextStep) nextStep.classList.add('active');
+            });
+        });
+        
+        document.querySelectorAll('.prev-step').forEach(button => {
+            button.addEventListener('click', function() {
+                const currentTab = this.closest('.tab-content');
+                const prevTabId = this.getAttribute('data-prev');
+                
+                currentTab.classList.remove('active');
+                document.getElementById(prevTabId).classList.add('active');
+                
+                // Update progress steps
+                steps.forEach(step => step.classList.remove('active'));
+                const prevStep = Array.from(steps).find(step => 
+                    step.querySelector('.step-label').textContent.toLowerCase().includes(prevTabId.replace('-', ' '))
+                );
+                if (prevStep) prevStep.classList.add('active');
+            });
+        });
+        
+        // File upload preview
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const previewId = this.id + '-preview';
+                const preview = document.getElementById(previewId);
+                
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+        
+        // Update review section
+        const form = document.querySelector('.kyc-form');
+        const reviewPersonal = document.getElementById('review-personal');
+        const reviewDocuments = document.getElementById('review-documents');
+        
+        form.addEventListener('input', function() {
+            // Update personal info review
+            const personalData = {
+                dob: form.querySelector('[name="dob"]').value,
+                gender: form.querySelector('[name="gender"]').value,
+                address: form.querySelector('[name="address"]').value,
+                city: form.querySelector('[name="city"]').value,
+                pincode: form.querySelector('[name="pincode"]').value,
+                state: form.querySelector('[name="state"]').value,
+                pan: form.querySelector('[name="pan"]').value,
+                aadhaar: form.querySelector('[name="aadhaar"]').value,
+                employment_type: form.querySelector('[name="employment_type"]').value,
+                monthly_income: form.querySelector('[name="monthly_income"]').value
+            };
+            
+            let personalHTML = '<table class="table">';
+            for (const [key, value] of Object.entries(personalData)) {
+                if (value) {
+                    const label = key.replace('_', ' ');
+                    personalHTML += `
+                        <tr>
+                            <td><strong>${label}:</strong></td>
+                            <td>${value}</td>
+                        </tr>
+                    `;
+                }
+            }
+            personalHTML += '</table>';
+            reviewPersonal.innerHTML = personalHTML;
+            
+            // Update documents review
+            const files = ['pan-front', 'aadhaar-front', 'aadhaar-back', 'selfie', 'income-proof-file'];
+            let docsHTML = '<ul class="list-group">';
+            files.forEach(fileId => {
+                const input = document.getElementById(fileId);
+                if (input.files && input.files[0]) {
+                    docsHTML += `
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            ${fileId.replace('-', ' ')} uploaded
+                        </li>
+                    `;
+                }
+            });
+            docsHTML += '</ul>';
+            reviewDocuments.innerHTML = docsHTML;
+        });
+    });
+</script>
+{% endblock %}

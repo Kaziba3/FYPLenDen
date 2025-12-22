@@ -1,0 +1,277 @@
+{% extends 'user/dashboard.html' %}
+{% load static %}
+
+{% block title %}Marketplace - PeerLend{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-store"></i> Marketplace</h1>
+        <p class="text-muted">Find people willing to lend or borrow</p>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="filterForm" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Transaction Type</label>
+                    <select class="form-control" name="type">
+                        <option value="">All Types</option>
+                        <option value="borrow">Looking to Borrow</option>
+                        <option value="lend">Willing to Lend</option>
+                        <option value="exchange">Goods Exchange</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Amount Range</label>
+                    <div class="d-flex align-items-center">
+                        <input type="range" class="form-range" id="amountRange" min="1000" max="100000" step="1000" value="50000">
+                        <span class="ms-3" id="amountValue">₹50,000</span>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Interest Rate</label>
+                    <div class="d-flex align-items-center">
+                        <input type="range" class="form-range" id="interestRange" min="1" max="30" step="0.5" value="12">
+                        <span class="ms-3" id="interestValue">12%</span>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-control" placeholder="City or State">
+                </div>
+                
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Apply Filters
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Map View -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3><i class="fas fa-map-marker-alt"></i> Users on Map</h3>
+        </div>
+        <div class="card-body">
+            <div class="map-placeholder" style="height: 300px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-map fa-3x text-muted"></i>
+                <p class="ms-3 mb-0">Interactive map showing users' locations</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Marketplace Listings -->
+    <div class="row">
+        <div class="col-md-8">
+            <h3>Available Listings</h3>
+            
+            <!-- Listing Item -->
+            <div class="card listing-item mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            <div class="user-avatar text-center">
+                                <div class="avatar-large">JD</div>
+                                <small class="text-muted">John Doe</small>
+                                <div class="rating">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <span>4.8</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5>Looking to Borrow</h5>
+                            <p class="text-muted">Need funds for education expenses</p>
+                            <div class="listing-details">
+                                <span class="badge bg-primary">Amount: ₹25,000</span>
+                                <span class="badge bg-success">Interest: 12%</span>
+                                <span class="badge bg-info">Duration: 6 months</span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="listing-actions">
+                                <p class="text-muted">
+                                    <i class="fas fa-map-marker-alt"></i> Mumbai, Maharashtra
+                                </p>
+                                <div class="friend-indicator">
+                                    <i class="fas fa-user-friends text-success"></i>
+                                    <small>3 mutual friends</small>
+                                </div>
+                                <button class="btn btn-primary btn-sm w-100 mt-2" data-modal="connectModal">
+                                    <i class="fas fa-comment"></i> Connect
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- More listings would go here -->
+            
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-lightbulb"></i> Tips & Guidelines</h4>
+                </div>
+                <div class="card-body">
+                    <div class="tips-list">
+                        <div class="tip-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <p>Always verify user profiles before transacting</p>
+                        </div>
+                        <div class="tip-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <p>Check mutual friends for trust verification</p>
+                        </div>
+                        <div class="tip-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <p>Use the chat system for all communications</p>
+                        </div>
+                        <div class="tip-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <p>Set clear repayment terms in chat</p>
+                        </div>
+                        <div class="tip-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <p>Report any suspicious activity immediately</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Connect Modal -->
+<div class="modal" id="connectModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Connect with John Doe</h3>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Warning:</strong> You have no mutual friends with this user. Proceed with caution.
+            </div>
+            
+            <div class="user-profile mb-4">
+                <div class="avatar-large">JD</div>
+                <div>
+                    <h4>John Doe</h4>
+                    <p>Rating: 4.8/5 (24 reviews)</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Mumbai, Maharashtra</p>
+                </div>
+            </div>
+            
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Initial Message</label>
+                    <textarea class="form-control" rows="3" placeholder="Introduce yourself and your purpose..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Purpose</label>
+                    <select class="form-control">
+                        <option>Interested in lending</option>
+                        <option>Interested in borrowing</option>
+                        <option>Goods exchange</option>
+                        <option>Just connecting</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary close-modal">Cancel</button>
+            <button class="btn btn-primary">Start Chat</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .listing-item {
+        transition: all 0.3s;
+        border-left: 4px solid var(--primary-green);
+    }
+    
+    .listing-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .avatar-large {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--lighter-green);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-green);
+        font-weight: 600;
+        font-size: 24px;
+        margin: 0 auto 10px;
+    }
+    
+    .rating {
+        margin-top: 5px;
+    }
+    
+    .listing-details {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    
+    .friend-indicator {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .tips-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .tip-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .tip-item i {
+        margin-top: 3px;
+    }
+    
+    .tip-item p {
+        margin: 0;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}

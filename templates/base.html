@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PeerLend - P2P Lending Platform{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if not hide_nav %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-handshake"></i> PeerLend
+            </a>
+            
+            {% if user.is_authenticated %}
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{% url 'user_dashboard' %}" class="nav-link">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'marketplace' %}" class="nav-link">
+                        <i class="fas fa-store"></i> Marketplace
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'borrow' %}" class="nav-link">
+                        <i class="fas fa-hand-holding-usd"></i> Borrow
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'lend' %}" class="nav-link">
+                        <i class="fas fa-money-bill-wave"></i> Lend
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'exchange' %}" class="nav-link">
+                        <i class="fas fa-exchange-alt"></i> Exchange
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'friends' %}" class="nav-link">
+                        <i class="fas fa-user-friends"></i> Friends
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'chat' %}" class="nav-link">
+                        <i class="fas fa-comments"></i> Chat
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="avatar">
+                        {% if user.first_name and user.last_name %}
+                            {{ user.first_name|first }}{{ user.last_name|first }}
+                        {% else %}
+                            {{ user.username|first }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="user-name">
+                            {% if user.get_full_name %}
+                                {{ user.get_full_name }}
+                            {% else %}
+                                {{ user.username }}
+                            {% endif %}
+                        </div>
+                        <div class="user-status">
+                            {% if user.profile.is_kyc_verified %}
+                                <span class="kyc-status kyc-verified">KYC Verified</span>
+                            {% else %}
+                                <span class="kyc-status kyc-pending">KYC Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-small dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                        <i class="fas fa-caret-down"></i>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="{% url 'profile' %}">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                        <a class="dropdown-item" href="{% url 'transactions' %}">
+                            <i class="fas fa-history"></i> Transactions
+                        </a>
+                        <a class="dropdown-item" href="{% url 'reviews' %}">
+                            <i class="fas fa-star"></i> Reviews
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            {% else %}
+            <div class="nav-auth">
+                <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
+                <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+    
+    <main class="main-content">
+        {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-handshake"></i> PeerLend</h3>
+                    <p>Peer-to-Peer Lending & Borrowing Platform</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Safety Guidelines</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-envelope"></i> support@peerlend.com</p>
+                    <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 PeerLend. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS for dropdowns -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
