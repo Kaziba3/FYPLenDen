@@ -1,0 +1,91 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}User Management - Admin | LenDen{% endblock %}
+
+{% block admin_content %}
+<div class="flex items-center justify-between">
+    <div>
+        <h1 class="text-2xl font-sans font-extrabold text-white">User Management</h1>
+        <p class="text-sm text-gray-400 mt-1">Manage all registered platform members</p>
+    </div>
+</div>
+
+<div class="bg-gray-900 rounded-2xl border border-white/5 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-white/5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                <tr>
+                    <th class="px-6 py-4 text-left">User</th>
+                    <th class="px-6 py-4 text-left">Email</th>
+                    <th class="px-6 py-4 text-center">Status</th>
+                    <th class="px-6 py-4 text-center">Trust Score</th>
+                    <th class="px-6 py-4 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {% for u in users %}
+                <tr class="hover:bg-white/2 transition-all">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="h-9 w-9 rounded-xl bg-primary-600/20 text-primary-400 flex items-center justify-center text-sm font-bold">
+                                {{ u.username|first|upper }}
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-white">{{ u.username }}</p>
+                                <p class="text-xs text-gray-500">{{ u.get_full_name }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-400">{{ u.email }}</td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex flex-col gap-1 items-center">
+                            {% if u.profile.kyc_verified %}
+                            <span class="px-2 py-0.5 bg-primary-600/20 text-primary-400 text-[8px] font-black rounded-full uppercase tracking-tighter">KYC Verified</span>
+                            {% else %}
+                            <span class="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-[8px] font-black rounded-full uppercase tracking-tighter">KYC Pending</span>
+                            {% endif %}
+                            
+                            {% if u.is_active %}
+                            <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-500 text-[8px] font-black rounded-full uppercase tracking-tighter">Account Active</span>
+                            {% else %}
+                            <span class="px-2 py-0.5 bg-rose-500/20 text-rose-500 text-[8px] font-black rounded-full uppercase tracking-tighter">Account Disabled</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="text-sm font-bold text-white">{{ u.profile.trust_score }}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{% url 'view_user' u.id %}" class="h-8 w-8 bg-white/5 text-gray-400 hover:text-white rounded-lg flex items-center justify-center transition-all" title="View Details">
+                                <i class="fas fa-eye text-xs"></i>
+                            </a>
+                            <form method="post" class="inline" onsubmit="return confirm('Are you sure you want to {% if u.is_active %}deactivate{% else %}activate{% endif %} this user?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" value="{{ u.id }}">
+                                <input type="hidden" name="action" value="toggle_status">
+                                <button type="submit" class="h-8 w-8 {% if u.is_active %}bg-amber-500/10 text-amber-500 hover:bg-amber-500/20{% else %}bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20{% endif %} rounded-lg flex items-center justify-center transition-all" title="{% if u.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                    <i class="fas {% if u.is_active %}fa-user-slash{% else %}fa-user-check{% endif %} text-xs"></i>
+                                </button>
+                            </form>
+                            <form method="post" class="inline" onsubmit="return confirm('CRITICAL: Are you sure you want to PERMANENTLY delete this user? This cannot be undone.');">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" value="{{ u.id }}">
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit" class="h-8 w-8 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 rounded-lg flex items-center justify-center transition-all" title="Delete User">
+                                    <i class="fas fa-trash-can text-xs"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500 text-sm">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,337 +1,349 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Dashboard - PeerLend{% endblock %}
+{% block title %}Dashboard - LenDen Ecosystem{% endblock %}
 
-{% block navbar %}
-<nav class="navbar">
-    <div class="nav-container">
-        <a href="{% url 'user_dashboard' %}" class="nav-logo">
-            <i class="fas fa-handshake"></i> PeerLend
-        </a>
-        
-        <ul class="nav-menu">
-            <li class="nav-item">
-                <a href="{% url 'user_dashboard' %}" class="nav-link active">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'marketplace' %}" class="nav-link">
-                    <i class="fas fa-store"></i> Marketplace
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'borrow' %}" class="nav-link">
-                    <i class="fas fa-hand-holding-usd"></i> Borrow
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'lend' %}" class="nav-link">
-                    <i class="fas fa-money-bill-wave"></i> Lend
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'exchange' %}" class="nav-link">
-                    <i class="fas fa-exchange-alt"></i> Exchange
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'chat' %}" class="nav-link">
-                    <i class="fas fa-comments"></i> Chat
-                </a>
-            </li>
-        </ul>
-        
-        <div class="user-menu">
-            <div class="user-info">
-                <div class="avatar">
-                    {{ user.first_name|first }}{{ user.last_name|first }}
-                </div>
-                <div>
-                    <div class="user-name">{{ user.get_full_name }}</div>
-                    <div class="user-status">
-                        <span class="badge badge-success">KYC Verified</span>
-                    </div>
-                </div>
-            </div>
-            <a href="{% url 'logout' %}" class="btn btn-secondary btn-small">
-                <i class="fas fa-sign-out-alt"></i> Logout
+{% block content %}
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-12">
+    <!-- Welcome Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        <div class="space-y-2">
+            <h1 class="text-4xl font-sans font-extrabold text-slate-900 tracking-tight">
+                Welcome back, <span
+                    class="bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-indigo-600">{{                     user.first_name|default:user.username }}</span>!
+            </h1>
+            <p class="text-slate-500 font-medium">Here's a snapshot of your community trust and financial health today.
+            </p>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="{% url 'marketplace' %}"
+                class="px-6 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm hover:shadow-md flex items-center gap-2">
+                <i class="fas fa-search-dollar text-primary-500"></i> Browse Marketplace
+            </a>
+            <a href="{% url 'lend' %}"
+                class="px-6 py-4 bg-slate-900 rounded-2xl text-sm font-bold text-white hover:bg-black transition-all shadow-xl shadow-slate-200 transform hover:-translate-y-1 flex items-center gap-2">
+                <i class="fas fa-plus-circle"></i> Offer Loan
             </a>
         </div>
     </div>
-</nav>
-{% endblock %}
 
-{% block content %}
-<div class="container">
-    <div class="page-header">
-        <h1>Welcome back, {{ user.first_name }}!</h1>
-        <p class="text-muted">Here's your financial overview</p>
-    </div>
-    
-    <!-- KYC Alert -->
-    <div class="alert alert-warning">
-        <i class="fas fa-exclamation-triangle"></i>
-        Your KYC verification is pending. <a href="{% url 'kyc_form' %}">Complete it now</a> to access all features.
-    </div>
-    
-    <!-- Quick Stats -->
-    <div class="dashboard-grid">
-        <div class="dashboard-card">
-            <h3><i class="fas fa-wallet"></i> Wallet Balance</h3>
-            <div class="value">₹12,500</div>
-            <p class="subtitle">Available for lending/borrowing</p>
-            <button class="btn btn-primary btn-small">Add Funds</button>
+    <!-- KYC Alert (Modernized) -->
+    {% if profile.kyc_status != 'APPROVED' %}
+    <div class="{% if profile.kyc_status == 'REJECTED' %}bg-rose-50 border-rose-100{% else %}bg-amber-50 border-amber-100{% endif %} p-6 rounded-[2rem] shadow-sm relative overflow-hidden group">
+        <div
+            class="absolute -top-12 -right-12 h-32 w-32 {% if profile.kyc_status == 'REJECTED' %}bg-rose-200/20{% else %}bg-amber-200/20{% endif %} rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700">
         </div>
-        
-        <div class="dashboard-card">
-            <h3><i class="fas fa-hand-holding-usd"></i> Active Borrowings</h3>
-            <div class="value">₹8,000</div>
-            <p class="subtitle">2 active loans</p>
-            <a href="{% url 'borrow' %}" class="btn btn-secondary btn-small">View Details</a>
-        </div>
-        
-        <div class="dashboard-card">
-            <h3><i class="fas fa-money-bill-wave"></i> Active Lendings</h3>
-            <div class="value">₹25,000</div>
-            <p class="subtitle">5 active loans</p>
-            <a href="{% url 'lend' %}" class="btn btn-secondary btn-small">View Details</a>
-        </div>
-        
-        <div class="dashboard-card">
-            <h3><i class="fas fa-star"></i> Credit Score</h3>
-            <div class="value">780</div>
-            <p class="subtitle">Excellent</p>
-            <button class="btn btn-secondary btn-small">Improve Score</button>
-        </div>
-        
-        <div class="dashboard-card">
-            <h3><i class="fas fa-user-friends"></i> Friends</h3>
-            <div class="value">24</div>
-            <p class="subtitle">Connected users</p>
-            <a href="{% url 'friends' %}" class="btn btn-secondary btn-small">Manage Friends</a>
-        </div>
-        
-        <div class="dashboard-card">
-            <h3><i class="fas fa-calendar-alt"></i> Upcoming Payments</h3>
-            <div class="value">₹3,200</div>
-            <p class="subtitle">Due in 7 days</p>
-            <a href="{% url 'transactions' %}" class="btn btn-warning btn-small">Pay Now</a>
+        <div class="flex items-center gap-5 relative z-10">
+            <div
+                class="h-14 w-14 bg-white rounded-2xl flex items-center justify-center {% if profile.kyc_status == 'REJECTED' %}text-rose-500 shadow-rose-100{% else %}text-amber-500 shadow-amber-100{% endif %} shadow-sm">
+                {% if profile.kyc_status == 'REJECTED' %}
+                <i class="fas fa-circle-xmark text-2xl"></i>
+                {% elif profile.kyc_status == 'PENDING' %}
+                <i class="fas fa-clock text-2xl"></i>
+                {% else %}
+                <i class="fas fa-id-card-clip text-2xl"></i>
+                {% endif %}
+            </div>
+            <div class="flex-1">
+                {% if profile.kyc_status == 'REJECTED' %}
+                <h4 class="text-rose-900 font-sans font-bold text-lg">Identity Verification Rejected</h4>
+                <p class="text-rose-700/80 text-sm mt-0.5">Your KYC was rejected. Please review and resubmit with correct information.</p>
+                {% elif profile.kyc_status == 'PENDING' %}
+                <h4 class="text-amber-900 font-sans font-bold text-lg">Verification Under Review</h4>
+                <p class="text-amber-700/80 text-sm mt-0.5">We're currently reviewing your documents. You'll be notified once the process is complete.</p>
+                {% else %}
+                <h4 class="text-amber-900 font-sans font-bold text-lg">Identity Verification Required</h4>
+                <p class="text-amber-700/80 text-sm mt-0.5">Complete your KYC to remove borrowing limits and boost your trust index instantly.</p>
+                {% endif %}
+            </div>
+            {% if profile.kyc_status != 'PENDING' %}
+            <a href="{% url 'kyc_form' %}"
+                class="px-6 py-3 {% if profile.kyc_status == 'REJECTED' %}bg-rose-500 shadow-rose-200 hover:bg-rose-600{% else %}bg-amber-500 shadow-amber-200 hover:bg-amber-600{% endif %} text-white font-bold rounded-xl transition-all shadow-lg">
+                {% if profile.kyc_status == 'REJECTED' %}Fix & Resubmit{% else %}Verify Now{% endif %}
+            </a>
+            {% else %}
+            <div class="px-6 py-3 bg-amber-100 text-amber-600 font-bold rounded-xl cursor-default">
+                Pending Review
+            </div>
+            {% endif %}
         </div>
     </div>
-    
-    <!-- Recent Activity -->
-    <div class="row mt-5">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="fas fa-history"></i> Recent Activity</h3>
+    {% endif %}
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Trust Score Card -->
+        <div
+            class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-xl transition-all duration-500">
+            <div
+                class="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-150 group-hover:rotate-12 transition-all duration-700">
+                <i class="fas fa-shield-halved text-7xl text-primary-600"></i>
+            </div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Trust Index</p>
+            <div class="flex items-end gap-2">
+                <span class="text-5xl font-sans font-extrabold text-slate-900 leading-none">{{ profile.trust_score                     }}</span>
+                <span class="text-slate-300 font-bold mb-1">/100</span>
+            </div>
+            <div class="mt-6 w-full bg-slate-50 rounded-full h-2 pill overflow-hidden">
+                <div class="bg-gradient-to-r from-emerald-400 to-primary-600 h-full rounded-full transition-all duration-1000"
+                    style="width: {{ profile.trust_score }}%"></div>
+            </div>
+            <p class="mt-4 text-[10px] font-bold text-slate-400">HIGHER SCORE = LOWER INTEREST RATES</p>
+        </div>
+
+        <!-- Active Borrowing -->
+        <div
+            class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-500">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Borrowed Assets</p>
+            <div class="flex flex-col">
+                <span class="text-3xl font-sans font-extrabold text-slate-900">Rs. {{                     active_borrows_amount|floatformat:2 }}</span>
+                <span class="text-xs text-rose-500 font-bold mt-1 uppercase">{{ active_borrows_count }} Active
+                    Obligations</span>
+            </div>
+            <div class="mt-6 space-y-2">
+                <div class="w-full bg-slate-50 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-rose-500 h-full rounded-full" style="width: {{ usage_percent|default:0 }}%"></div>
                 </div>
-                <div class="card-body">
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Transaction</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>2024-01-15</td>
-                                    <td>Borrowed from John Doe</td>
-                                    <td>₹5,000</td>
-                                    <td><span class="status-badge status-active">Active</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2024-01-14</td>
-                                    <td>Lent to Jane Smith</td>
-                                    <td>₹10,000</td>
-                                    <td><span class="status-badge status-active">Active</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2024-01-10</td>
-                                    <td>Repayment to Alex Johnson</td>
-                                    <td>₹2,500</td>
-                                    <td><span class="status-badge status-success">Completed</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2024-01-05</td>
-                                    <td>Book exchange with Mike Brown</td>
-                                    <td>N/A</td>
-                                    <td><span class="status-badge status-success">Completed</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="flex justify-between text-[10px] font-bold text-slate-400 uppercase">
+                    <span>Utilization</span>
+                    <span>{{ usage_percent|default:0|floatformat:1 }}%</span>
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="fas fa-bell"></i> Notifications</h3>
-                </div>
-                <div class="card-body">
-                    <div class="notification-list">
-                        <div class="notification-item unread">
-                            <div class="notification-icon">
-                                <i class="fas fa-exclamation-circle text-warning"></i>
-                            </div>
-                            <div class="notification-content">
-                                <p>Payment due in 3 days for loan #1234</p>
-                                <small>2 hours ago</small>
-                            </div>
-                        </div>
-                        <div class="notification-item">
-                            <div class="notification-icon">
-                                <i class="fas fa-user-plus text-success"></i>
-                            </div>
-                            <div class="notification-content">
-                                <p>Mike Brown accepted your friend request</p>
-                                <small>1 day ago</small>
-                            </div>
-                        </div>
-                        <div class="notification-item">
-                            <div class="notification-icon">
-                                <i class="fas fa-star text-primary"></i>
-                            </div>
-                            <div class="notification-content">
-                                <p>You received a 5-star review from Jane Smith</p>
-                                <small>2 days ago</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+        <!-- Active Lending -->
+        <div
+            class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-500">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Capital Deployed</p>
+            <div class="flex flex-col">
+                <span class="text-3xl font-sans font-extrabold text-slate-900">Rs. {{                     active_lendings_amount|floatformat:2 }}</span>
+                <span class="text-xs text-emerald-500 font-bold mt-1 uppercase">{{ active_lendings_count }} Active
+                    Yields</span>
             </div>
-            
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h3><i class="fas fa-chart-line"></i> Borrowing Limit</h3>
+            <div class="mt-6 flex items-center justify-between">
+                <div class="flex -space-x-3">
+                    <div class="h-9 w-9 rounded-2xl bg-indigo-50 border-2 border-white"></div>
+                    <div class="h-9 w-9 rounded-2xl bg-indigo-100 border-2 border-white"></div>
+                    <div
+                        class="h-9 w-9 rounded-2xl bg-indigo-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-indigo-700">
+                        +{{ active_lendings_count }}</div>
                 </div>
-                <div class="card-body">
-                    <div class="progress" style="height: 20px;">
-                        <div class="progress-bar" role="progressbar" style="width: 65%;" 
-                             aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">
-                            65%
-                        </div>
-                    </div>
-                    <p class="mt-2">₹8,000 used of ₹12,000 limit</p>
-                    <small class="text-muted">Limit resets after repayments</small>
-                </div>
+                <a href="{% url 'transactions' %}"
+                    class="h-9 w-9 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all">
+                    <i class="fas fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Friends & Network -->
+        <div
+            class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-500 relative overflow-hidden group">
+            <div
+                class="absolute -bottom-8 -left-8 h-24 w-24 bg-primary-50 rounded-full blur-2xl group-hover:scale-150 transition-transform">
+            </div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Community Reach</p>
+            <div class="flex items-center gap-4">
+                <span class="text-5xl font-sans font-extrabold text-slate-900">{{ friends_count }}</span>
+                <p class="text-xs font-bold text-slate-400 leading-tight uppercase">Trusted<br>Companions</p>
+            </div>
+            <div class="mt-8 flex items-center justify-between relative z-10">
+                <a href="{% url 'friends' %}"
+                    class="px-5 py-2.5 bg-slate-900 text-white text-[10px] font-bold rounded-xl hover:bg-black transition-all shadow-lg shadow-slate-200">
+                    EXPAND CIRCLE
+                </a>
+                <i class="fas fa-users-viewfinder text-primary-200 text-2xl"></i>
             </div>
         </div>
     </div>
-    
-    <!-- Quick Actions -->
-    <div class="card mt-5">
-        <div class="card-header">
-            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+
+    <!-- Pending Actions Section -->
+    {% if pending_lend_requests %}
+    <div class="space-y-6">
+        <h2 class="text-2xl font-sans font-extrabold text-slate-900 flex items-center gap-2">
+            <i class="fas fa-bolt-lightning text-amber-500"></i>
+            Pending Actions
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for trans in pending_lend_requests %}
+            <div class="bg-white rounded-[2rem] p-6 border-2 border-amber-100 shadow-xl shadow-amber-50/50 space-y-4 relative overflow-hidden group">
+                <div class="absolute -top-6 -right-6 h-20 w-20 bg-amber-50 rounded-full group-hover:scale-150 transition-transform"></div>
+                
+                <div class="flex items-center gap-4 relative z-10">
+                    <div class="h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-slate-400">
+                        {{ trans.borrower.username|first|upper }}
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Borrower</p>
+                        <p class="text-sm font-bold text-slate-900">{{ trans.borrower.username }}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Principal</p>
+                        <p class="text-lg font-sans font-extrabold text-slate-900">Rs. {{ trans.amount|floatformat:0 }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Net Yield</p>
+                        <p class="text-lg font-sans font-extrabold text-emerald-600">+Rs. {{ trans.calculate_interest|floatformat:0 }}</p>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex gap-3">
+                    <a href="{% url 'esewa_initiate' trans.id %}" class="flex-1 text-center py-3 bg-slate-900 text-white text-[10px] font-bold rounded-xl hover:bg-black transition-all uppercase tracking-widest shadow-lg shadow-slate-200">
+                        Approve & Fund
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        <div class="card-body">
-            <div class="quick-actions-grid">
-                <a href="{% url 'borrow' %}" class="quick-action">
-                    <i class="fas fa-hand-holding-usd"></i>
-                    <span>Request Loan</span>
-                </a>
-                <a href="{% url 'lend' %}" class="quick-action">
-                    <i class="fas fa-money-bill-wave"></i>
-                    <span>Offer to Lend</span>
-                </a>
-                <a href="{% url 'marketplace' %}" class="quick-action">
-                    <i class="fas fa-store"></i>
-                    <span>Browse Marketplace</span>
-                </a>
-                <a href="{% url 'exchange' %}" class="quick-action">
-                    <i class="fas fa-exchange-alt"></i>
-                    <span>Exchange Goods</span>
-                </a>
-                <a href="{% url 'chat' %}" class="quick-action">
-                    <i class="fas fa-comments"></i>
-                    <span>Start Chat</span>
-                </a>
-                <a href="{% url 'friends' %}" class="quick-action">
-                    <i class="fas fa-user-friends"></i>
-                    <span>Add Friends</span>
-                </a>
+    </div>
+    {% endif %}
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <!-- Recent Transactions -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-50 flex items-center justify-between">
+                    <h3 class="text-xl font-sans font-bold text-slate-900">Recent Ledger</h3>
+                    <a href="{% url 'transactions' %}"
+                        class="text-xs font-bold text-primary-600 uppercase tracking-widest hover:text-black transition-colors">Full
+                        History &rarr;</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-50/50 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                            <tr>
+                                <th class="px-8 py-4 text-left font-bold">Timeline</th>
+                                <th class="px-4 py-4 text-left font-bold">Transaction</th>
+                                <th class="px-4 py-4 text-right font-bold">Magnitude</th>
+                                <th class="px-8 py-4 text-center font-bold">Verdict</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            {% for tx in recent_transactions %}
+                            <tr class="group hover:bg-slate-50/50 transition-all duration-300">
+                                <td class="px-8 py-6 text-xs text-slate-500 font-medium">{{ tx.date|date:"D, M d" }}
+                                </td>
+                                <td class="px-4 py-6">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="h-10 w-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm
+                                            {% if 'Lent' in tx.type %}bg-emerald-50 text-emerald-600{% else %}bg-indigo-50 text-indigo-600{% endif %}">
+                                            {% if "Lent" in tx.type %}<i class="fas fa-arrow-right-from-bracket"></i>{% else %}<i class="fas fa-arrow-left-long"></i>{% endif %}
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-bold text-slate-900">{{ tx.type }}</span>
+                                            <span
+                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Verified
+                                                Node</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-6 text-sm font-extrabold text-slate-900 text-right">Rs. {{                                     tx.amount|floatformat:2 }}</td>
+                                <td class="px-8 py-6 text-center">
+                                    <span class="px-4 py-1.5 text-[10px] font-black rounded-lg uppercase tracking-widest
+                                        {% if tx.status == 'ACTIVE' %}bg-emerald-100 text-emerald-800
+                                        {% elif tx.status == 'PENDING' %}bg-amber-100 text-amber-800
+                                        {% elif tx.status == 'REPAID' %}bg-blue-100 text-blue-800
+                                        {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                        {{ tx.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="px-8 py-16 text-center">
+                                    <div
+                                        class="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-200">
+                                        <i class="fas fa-inbox text-2xl"></i>
+                                    </div>
+                                    <p class="text-sm text-slate-400 font-medium italic">No ledger entries detected in
+                                        your ecosystem yet.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Components -->
+        <div class="space-y-10">
+            <!-- Notifications Modern -->
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                    <h3 class="font-sans font-bold text-slate-900">Broadcasts</h3>
+                    <span
+                        class="h-5 w-5 bg-primary-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center scale-90">
+                        {{ notifications|length }}
+                    </span>
+                </div>
+                <div class="max-h-[500px] overflow-y-auto divide-y divide-slate-50">
+                    {% for n in notifications %}
+                    <div
+                        class="p-6 hover:bg-slate-50 transition-all group {% if not n.is_read %}bg-primary-50/10{% endif %}">
+                        <div class="flex gap-4">
+                            <div class="mt-1.5 h-3 w-3 rounded-full shrink-0 shadow-lg shadow-primary-200 transition-transform group-hover:scale-150
+                                {% if not n.is_read %}bg-primary-600{% else %}bg-slate-200{% endif %}">
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-sm text-slate-700 leading-snug font-medium">{{ n.message }}</p>
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{                                     n.created_at|timesince }} ago</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-12 text-center text-slate-300">
+                        <i class="fas fa-ghost text-4xl mb-4 block opacity-10"></i>
+                        <p class="text-sm font-bold uppercase tracking-widest">Nothing to report</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Borrowing Limit Dark Card -->
+            <div class="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl">
+                <div class="absolute -top-24 -right-24 h-64 w-64 bg-primary-600 rounded-full blur-[100px] opacity-15">
+                </div>
+                <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-primary-600 to-indigo-600"></div>
+
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mb-8">Borrowing Potency</h3>
+
+                <div class="space-y-1">
+                        <span class="text-4xl font-sans font-extrabold tracking-tight">
+                            {% if profile.kyc_status == 'APPROVED' %}Unlimited{% else %}Rs. {{ borrow_limit|floatformat:0 }}{% endif %}
+                        </span>
+                    <p class="text-[10px] font-bold text-primary-400 uppercase tracking-widest">Global Ceiling</p>
+                </div>
+
+                {% if profile.kyc_status != 'APPROVED' %}
+                <div class="mt-12 space-y-4">
+                    <div class="flex justify-between items-end">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Current
+                            usage</span>
+                        <span class="text-xl font-sans font-bold">{{ usage_percent|floatformat:1 }}%</span>
+                    </div>
+                    <div class="w-full bg-white/5 rounded-full h-2.5 p-1">
+                        <div class="bg-gradient-to-r from-primary-500 to-emerald-400 h-full rounded-full shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all duration-1000"
+                            style="width: {{ usage_percent|default:0 }}%"></div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="mt-12 pt-8 border-t border-white/5 flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-tighter">Tier Access</span>
+                        <span class="text-sm font-bold text-white">Community Standard</span>
+                    </div>
+                    <div class="h-10 w-10 bg-white/5 rounded-xl flex items-center justify-center text-primary-500">
+                        <i class="fas fa-bolt-lightning"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .quick-actions-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 20px;
-        text-align: center;
-    }
-    
-    .quick-action {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        background: var(--lighter-green);
-        border-radius: 8px;
-        color: var(--dark-green);
-        transition: all 0.3s;
-    }
-    
-    .quick-action:hover {
-        background: var(--accent-green);
-        transform: translateY(-5px);
-        text-decoration: none;
-    }
-    
-    .quick-action i {
-        font-size: 32px;
-        margin-bottom: 10px;
-    }
-    
-    .quick-action span {
-        font-weight: 500;
-    }
-    
-    .notification-list {
-        max-height: 300px;
-        overflow-y: auto;
-    }
-    
-    .notification-item {
-        display: flex;
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-        align-items: flex-start;
-    }
-    
-    .notification-item.unread {
-        background: #FFF3E0;
-    }
-    
-    .notification-icon {
-        margin-right: 12px;
-        font-size: 18px;
-    }
-    
-    .notification-content {
-        flex: 1;
-    }
-    
-    .notification-content p {
-        margin: 0;
-        font-size: 14px;
-    }
-    
-    .notification-content small {
-        color: var(--gray);
-        font-size: 12px;
-    }
-</style>
 {% endblock %}

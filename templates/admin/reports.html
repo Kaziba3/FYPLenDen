@@ -1,0 +1,42 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Analytics & Reports - Admin | LenDen{% endblock %}
+
+{% block admin_content %}
+<div>
+    <h1 class="text-2xl font-sans font-extrabold text-white">Analytics & Reports</h1>
+    <p class="text-sm text-gray-400 mt-1">Platform-wide financial health summary</p>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {% for report in reports %}
+    <div class="bg-gray-900 rounded-2xl border border-white/5 p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ report.period }}</p>
+            <div class="h-10 w-10 bg-primary-600/20 rounded-xl flex items-center justify-center text-primary-400">
+                <i class="fas fa-chart-area"></i>
+            </div>
+        </div>
+        <div class="space-y-2">
+            <div class="flex justify-between items-center py-2 border-b border-white/5">
+                <span class="text-xs font-bold text-gray-500 uppercase">Transactions</span>
+                <span class="text-sm font-bold text-white">{{ report.transaction_count }}</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-white/5">
+                <span class="text-xs font-bold text-gray-500 uppercase">Total Volume</span>
+                <span class="text-sm font-bold text-white">Rs. {{ report.total_amount|floatformat:0 }}</span>
+            </div>
+            <div class="flex justify-between items-center py-2">
+                <span class="text-xs font-bold text-gray-500 uppercase">Avg. Interest</span>
+                <span class="text-sm font-bold text-primary-400">{{ report.avg_interest|floatformat:2 }}%</span>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-3 bg-gray-900 rounded-2xl border border-white/5 p-12 text-center">
+        <p class="text-gray-500">No report data available yet.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

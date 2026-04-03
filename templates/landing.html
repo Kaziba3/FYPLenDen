@@ -1,184 +1,305 @@
-{% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}PeerLend - Peer-to-Peer Lending Platform{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LenDen - Community P2P Lending Platform</title>
+    <meta name="description"
+        content="LenDen connects lenders and borrowers within trusted communities. Fast, secure, transparent peer-to-peer lending in Nepal.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --dark-green: #1B5E20;
+            --light-green: #4CAF50;
+            --lighter-green: #C8E6C9;
+            --accent-green: #81C784;
+            --bg-color: #F8FAF9;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        outfit: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: 'var(--lighter-green)',
+                            100: 'var(--lighter-green)',
+                            200: 'var(--accent-green)', 
+                            300: 'var(--accent-green)',
+                            400: 'var(--light-green)', 
+                            500: 'var(--light-green)', 
+                            600: 'var(--primary-green)', 
+                            700: 'var(--primary-green)',
+                            800: 'var(--dark-green)', 
+                            900: 'var(--dark-green)', 
+                            950: '#052e16',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-grid {
+            background-image: radial-gradient(circle at 1px 1px, rgba(30, 127, 92, 0.08) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
 
-{% block extra_css %}
-<style>
-    .hero-section {
-        background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
-        color: white;
-        padding: 100px 0;
-        text-align: center;
-    }
-    
-    .hero-section h1 {
-        font-size: 3.5rem;
-        margin-bottom: 20px;
-        color: white;
-    }
-    
-    .hero-section p {
-        font-size: 1.2rem;
-        margin-bottom: 30px;
-        opacity: 0.9;
-    }
-    
-    .features-section {
-        padding: 80px 0;
-    }
-    
-    .feature-card {
-        text-align: center;
-        padding: 30px;
-        border-radius: 10px;
-        background: var(--white);
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        height: 100%;
-        transition: transform 0.3s;
-    }
-    
-    .feature-card:hover {
-        transform: translateY(-10px);
-    }
-    
-    .feature-icon {
-        width: 80px;
-        height: 80px;
-        background: var(--lighter-green);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 20px;
-        font-size: 32px;
-        color: var(--primary-green);
-    }
-    
-    .how-it-works {
-        background: var(--gray-light);
-        padding: 80px 0;
-    }
-    
-    .step-card {
-        text-align: center;
-        padding: 30px;
-        position: relative;
-    }
-    
-    .step-number {
-        width: 50px;
-        height: 50px;
-        background: var(--primary-green);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        font-weight: bold;
-        margin: 0 auto 20px;
-    }
-    
-    .cta-section {
-        padding: 80px 0;
-        text-align: center;
-        background: linear-gradient(135deg, var(--lighter-green) 0%, var(--white) 100%);
-    }
-</style>
-{% endblock %}
+        @keyframes float {
 
-{% block content %}
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="container">
-        <h1>Welcome to PeerLend</h1>
-        <p class="lead">A secure peer-to-peer lending platform connecting borrowers and lenders directly.</p>
-        <div class="hero-buttons">
-            <a href="{% url 'signup' %}" class="btn btn-primary btn-large">
-                <i class="fas fa-user-plus"></i> Get Started
-            </a>
-            <a href="{% url 'login' %}" class="btn btn-secondary btn-large">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </a>
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        .float {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        .float-delay {
+            animation: float 5s ease-in-out 1.5s infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-[#F6FFF9] text-[#2C3E50] overflow-x-hidden">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-[#A7E9C5]/20">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <a href="#" class="flex items-center gap-2.5">
+                    <div
+                        class="h-10 w-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-[#1E7F5C]/20">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                    </div>
+                    <span class="text-2xl font-outfit font-extrabold text-[#1E7F5C]">LenDen</span>
+                </a>
+                <div class="hidden md:flex items-center gap-8 text-sm font-bold text-[#7F8C8D]">
+                    <a href="#features" class="hover:text-[#1E7F5C] transition-colors">Features</a>
+                    <a href="#how-it-works" class="hover:text-[#1E7F5C] transition-colors">How It Works</a>
+                    <a href="#trust" class="hover:text-[#1E7F5C] transition-colors">Trust & Safety</a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="{% url 'login' %}"
+                        class="text-sm font-bold text-[#7F8C8D] hover:text-[#2C3E50] transition-colors">Sign In</a>
+                    <a href="{% url 'signup' %}"
+                        class="px-5 py-2.5 bg-primary-600 text-white text-sm font-bold rounded-xl hover:bg-[#145940] transition-all shadow-lg shadow-[#1E7F5C]/20">
+                        Get Started
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
-</section>
+    </nav>
 
-<!-- Features Section -->
-<section class="features-section">
-    <div class="container">
-        <h2 class="text-center mb-5">Why Choose PeerLend?</h2>
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-handshake"></i>
+    <!-- Hero Section -->
+    <section class="hero-grid min-h-screen flex items-center pt-20">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <div
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-[#A7E9C5]/30 rounded-full border border-[#A7E9C5] text-[#1E7F5C] text-xs font-bold uppercase tracking-widest">
+                        <i class="fas fa-shield-check"></i> Nepal's #1 Community Lending Platform
                     </div>
-                    <h4>Direct Connections</h4>
-                    <p>Connect directly with lenders and borrowers without intermediaries.</p>
+                    <h1 class="text-5xl lg:text-6xl font-outfit font-extrabold leading-tight text-[#2C3E50]">
+                        Lend. Borrow.<br>
+                        <span class="text-[#1E7F5C]">Build Trust.</span>
+                    </h1>
+                    <p class="text-lg text-[#7F8C8D] leading-relaxed font-medium max-w-lg">
+                        LenDen connects you directly with friends and trusted community members for fast, transparent
+                        peer-to-peer lending. No banks. No red tape.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="{% url 'signup' %}"
+                            class="px-8 py-4 bg-primary-600 text-white font-bold rounded-2xl hover:bg-[#145940] transition-all shadow-xl shadow-[#1E7F5C]/20 transform hover:-translate-y-1 text-base">
+                            Join the Community <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                        <a href="{% url 'login' %}"
+                            class="px-8 py-4 bg-white text-[#2C3E50] font-bold rounded-2xl border border-[#A7E9C5] hover:border-[#1E7F5C] transition-all text-base">
+                            Sign In
+                        </a>
+                    </div>
+
+                    <!-- Trust Metrics -->
+                    <div class="flex flex-wrap gap-8 pt-4">
+                        <div>
+                            <p class="text-3xl font-outfit font-extrabold text-[#1E7F5C]">5,000+</p>
+                            <p class="text-xs font-bold text-[#7F8C8D] uppercase tracking-wider mt-1">Active Members</p>
+                        </div>
+                        <div class="w-px bg-[#A7E9C5]"></div>
+                        <div>
+                            <p class="text-3xl font-outfit font-extrabold text-[#1E7F5C]">Rs. 2Cr+</p>
+                            <p class="text-xs font-bold text-[#7F8C8D] uppercase tracking-wider mt-1">Loans Processed
+                            </p>
+                        </div>
+                        <div class="w-px bg-[#A7E9C5]"></div>
+                        <div>
+                            <p class="text-3xl font-outfit font-extrabold text-[#1E7F5C]">98%</p>
+                            <p class="text-xs font-bold text-[#7F8C8D] uppercase tracking-wider mt-1">Repayment Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Card -->
+                <div class="hidden lg:flex items-center justify-center">
+                    <div class="relative">
+                        <!-- Main Card -->
+                        <div
+                            class="float w-72 bg-white rounded-[2.5rem] p-8 shadow-2xl shadow-[#1E7F5C]/10 border border-[#A7E9C5]/20 relative z-10">
+                            <div class="flex items-center gap-3 mb-8">
+                                <div
+                                    class="h-12 w-12 rounded-2xl bg-primary-600 text-white flex items-center justify-center text-xl font-bold">
+                                    A</div>
+                                <div>
+                                    <p class="font-outfit font-bold text-[#2C3E50]">Anita Sharma</p>
+                                    <p class="text-xs font-bold text-[#2ECC71] flex items-center gap-1"><i
+                                            class="fas fa-shield-check text-[10px]"></i> KYC Verified</p>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-[10px] font-bold text-[#7F8C8D] uppercase tracking-widest">Offering
+                                    </p>
+                                    <p class="text-3xl font-outfit font-extrabold text-[#2C3E50] mt-1">Rs. 25,000</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="bg-[#F6FFF9] rounded-xl p-3">
+                                        <p class="text-[10px] font-bold text-[#7F8C8D] uppercase">Rate</p>
+                                        <p class="text-sm font-bold text-rose-500 mt-0.5">2.5% / mo</p>
+                                    </div>
+                                    <div class="bg-[#F6FFF9] rounded-xl p-3">
+                                        <p class="text-[10px] font-bold text-[#7F8C8D] uppercase">Trust</p>
+                                        <p class="text-sm font-bold text-[#1E7F5C] mt-0.5">92/100</p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="w-full py-3 bg-primary-600 text-white font-bold rounded-xl text-center text-sm">
+                                    Request This Loan
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notification Floating Card -->
+                        <div
+                            class="float-delay absolute -bottom-6 -left-14 z-20 w-52 bg-white rounded-2xl p-4 shadow-xl shadow-[#1E7F5C]/10 border border-[#A7E9C5]/20">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-check text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-[#2C3E50]">Loan Repaid!</p>
+                                    <p class="text-[10px] text-[#7F8C8D] font-medium">Rs. 10,500 received</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trust Badge -->
+                        <div
+                            class="float absolute -top-4 -right-10 z-20 w-40 bg-white rounded-2xl p-4 shadow-xl shadow-[#1E7F5C]/10 border border-[#A7E9C5]/20 text-center">
+                            <i class="fas fa-star text-amber-400 text-xl block mb-1"></i>
+                            <p class="text-lg font-outfit font-extrabold text-[#2C3E50]">4.9/5</p>
+                            <p class="text-[10px] font-bold text-[#7F8C8D]">COMMUNITY RATING</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h4>Secure Transactions</h4>
-                    <p>KYC verification ensures safe and secure lending environment.</p>
-                </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <p class="text-xs font-bold text-[#1E7F5C] uppercase tracking-widest mb-3">Why LenDen</p>
+                <h2 class="text-4xl font-outfit font-extrabold text-[#2C3E50]">Built for Community Trust</h2>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="feature-card">
-                    <div class="feature-icon">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div
+                    class="group p-8 bg-[#F6FFF9] rounded-[2rem] border border-transparent hover:border-[#A7E9C5] hover:bg-white transition-all duration-500 hover:shadow-xl">
+                    <div
+                        class="h-14 w-14 bg-[#1E7F5C] rounded-2xl flex items-center justify-center text-white text-xl mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-[#1E7F5C]/20">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <h3 class="text-xl font-outfit font-bold text-[#2C3E50] mb-3">KYC Verification</h3>
+                    <p class="text-[#7F8C8D] leading-relaxed text-sm">Every lender and borrower goes through identity
+                        verification, ensuring you transact only with real, verified community members.</p>
+                </div>
+                <div
+                    class="group p-8 bg-[#F6FFF9] rounded-[2rem] border border-transparent hover:border-[#A7E9C5] hover:bg-white transition-all duration-500 hover:shadow-xl">
+                    <div
+                        class="h-14 w-14 bg-[#1E7F5C] rounded-2xl flex items-center justify-center text-white text-xl mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-[#1E7F5C]/20">
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    <h4>Better Rates</h4>
-                    <p>Get better interest rates as both borrower and lender.</p>
+                    <h3 class="text-xl font-outfit font-bold text-[#2C3E50] mb-3">Trust Score Engine</h3>
+                    <p class="text-[#7F8C8D] leading-relaxed text-sm">A dynamic credit scoring system that rewards
+                        on-time repayments, good reviews, and active community participation.</p>
+                </div>
+                <div
+                    class="group p-8 bg-[#F6FFF9] rounded-[2rem] border border-transparent hover:border-[#A7E9C5] hover:bg-white transition-all duration-500 hover:shadow-xl">
+                    <div
+                        class="h-14 w-14 bg-[#1E7F5C] rounded-2xl flex items-center justify-center text-white text-xl mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-[#1E7F5C]/20">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="text-xl font-outfit font-bold text-[#2C3E50] mb-3">Real-time Chat</h3>
+                    <p class="text-[#7F8C8D] leading-relaxed text-sm">Communicate directly with lenders and borrowers.
+                        Negotiate terms, ask questions, and build real relationships.</p>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- How It Works -->
-<section class="how-it-works">
-    <div class="container">
-        <h2 class="text-center mb-5">How It Works</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <h4>Sign Up & Verify</h4>
-                    <p>Create your account and complete KYC verification.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <h4>Set Your Terms</h4>
-                    <p>Define your lending or borrowing requirements.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="step-card">
-                    <div class="step-number">3</div>
-                    <h4>Connect & Transact</h4>
-                    <p>Find matches and transact securely through our platform.</p>
+    <!-- CTA -->
+    <section class="py-24">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="bg-slate-900 rounded-[3rem] p-16 text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#1E7F5C]/20 to-transparent"></div>
+                <div class="absolute -top-32 -right-32 h-96 w-96 bg-[#1E7F5C]/10 rounded-full blur-3xl"></div>
+                <div class="relative z-10 space-y-6">
+                    <h2 class="text-4xl font-outfit font-extrabold text-white">Ready to Join the Community?</h2>
+                    <p class="text-gray-400 text-lg max-w-xl mx-auto">Sign up for free, complete your KYC, and start
+                        lending or borrowing within minutes.</p>
+                    <a href="{% url 'signup' %}"
+                        class="inline-block px-10 py-4 bg-primary-600 text-white font-bold rounded-2xl hover:bg-[#2ECC71] transition-all shadow-xl text-lg transform hover:-translate-y-1">
+                        Create Free Account <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- CTA Section -->
-<section class="cta-section">
-    <div class="container">
-        <h2>Ready to Get Started?</h2>
-        <p class="lead mb-4">Join thousands of users who trust PeerLend for their lending and borrowing needs.</p>
-        <a href="{% url 'signup' %}" class="btn btn-primary btn-large">
-            <i class="fas fa-rocket"></i> Join Now
-        </a>
-    </div>
-</section>
-{% endblock %}
+    <!-- Footer -->
+    <footer class="bg-white border-t border-[#A7E9C5]/20 py-12">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+            <div class="flex items-center justify-center gap-2 mb-4">
+                <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center text-white text-xs"><i
+                        class="fas fa-hand-holding-dollar"></i></div>
+                <span class="text-xl font-outfit font-extrabold text-[#1E7F5C]">LenDen</span>
+            </div>
+            <p class="text-sm text-[#7F8C8D] font-medium">&copy; 2026 LenDen Ecosystem. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

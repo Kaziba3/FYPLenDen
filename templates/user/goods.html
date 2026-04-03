@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Goods Lending - LenDen{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-10">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-sans font-extrabold text-slate-900">Goods Hub</h1>
+            <p class="text-slate-500 mt-1">Lend, Borrow or Exchange items within your community</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'my_exchanges' %}" class="btn-secondary">
+                <i class="fas fa-exchange-alt"></i> My Exchanges
+            </a>
+            <button onclick="document.getElementById('post-modal').classList.remove('hidden')" class="btn-primary">
+                <i class="fas fa-plus"></i> Post an Item
+            </button>
+        </div>
+    </div>
+
+    <!-- Goods Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for item in available_goods %}
+        <div class="premium-card overflow-hidden">
+            <div class="h-40 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+                <i class="fas fa-box-open text-4xl text-slate-300"></i>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <h3 class="font-sans font-bold text-slate-900 text-lg">{{ item.item_name }}</h3>
+                    <p class="text-sm text-slate-500 mt-1">{{ item.description|truncatewords:15 }}</p>
+                    <div class="mt-2 flex gap-2">
+                        <span class="px-2 py-0.5 bg-primary-50 text-primary-600 text-[10px] font-bold rounded-md uppercase">{{ item.exchange_type }}</span>
+                        <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md uppercase">{{ item.condition }}</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="h-8 w-8 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center text-sm font-bold">
+                            {{ item.owner.username|first|upper }}</div>
+                        <span class="text-xs font-bold text-slate-600">{{ item.owner.username }}</span>
+                    </div>
+                    {% if item.owner.profile.rating %}
+                    <div class="flex items-center text-amber-500 text-xs font-bold">
+                         <i class="fas fa-star mr-1"></i> {{ item.owner.profile.rating }}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <a href="{% url 'request_exchange' item.id %}"
+                    class="block w-full text-center py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-black transition-all text-sm">
+                    Request Item
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full bg-white rounded-[2rem] p-16 text-center border border-slate-100">
+            <i class="fas fa-box-open text-4xl text-slate-200 mb-4 block"></i>
+            <h3 class="text-lg font-sans font-bold text-slate-900 mb-2">No Items Listed Yet</h3>
+            <p class="text-sm text-slate-400">Be the first to lend something to your community.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- My Items Section -->
+    {% if my_goods %}
+    <section class="mt-16 space-y-6">
+        <h2 class="text-2xl font-sans font-extrabold text-slate-900">My Listed Items</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for item in my_goods %}
+            <div class="premium-card p-4">
+                 <div class="flex justify-between items-start mb-4">
+                     <h4 class="font-bold text-slate-800">{{ item.item_name }}</h4>
+                     <span class="px-2 py-1 {% if item.available %}bg-emerald-100 text-emerald-800{% else %}bg-slate-100 text-slate-500{% endif %} text-[9px] font-black rounded-full uppercase">
+                        {% if item.available %}Visible{% else %}In-Use{% endif %}
+                     </span>
+                 </div>
+                 <p class="text-xs text-slate-500 line-clamp-2 mb-4">{{ item.description }}</p>
+                 <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{{ item.exchange_type }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+<!-- Post Item Modal -->
+<div id="post-modal"
+    class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-sans font-bold">Post an Item</h2>
+            <button onclick="document.getElementById('post-modal').classList.add('hidden')"
+                class="h-8 w-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+        <form method="post" action="{% url 'goods' %}" class="space-y-4">
+            {% csrf_token %}
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Item Name</label>
+                <input type="text" name="item_name" required
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all"
+                    placeholder="e.g. Bicycle, Camera">
+            </div>
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Description</label>
+                <textarea name="description" rows="3"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all resize-none"
+                    placeholder="Describe the item's condition and usage instructions..."></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Exchange Type</label>
+                    <select name="exchange_type" required
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all">
+                        <option value="LEND">Lend</option>
+                        <option value="BORROW">Borrow</option>
+                        <option value="EXCHANGE">Swap/Exchange</option>
+                        <option value="RENT">Rent</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Condition</label>
+                    <input type="text" name="condition" required
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all"
+                        placeholder="e.g. New, Used">
+                </div>
+            </div>
+            <button type="submit"
+                class="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-black transition-all">Post
+                Item</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

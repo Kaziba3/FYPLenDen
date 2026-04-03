@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirm Loan Request - LenDen{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto py-12 px-4">
+    <div class="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-2xl relative overflow-hidden">
+        <!-- Decorative background -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-primary-600/5 rounded-bl-full -mr-10 -mt-10"></div>
+        
+        <div class="relative z-10">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="h-14 w-14 bg-primary-600 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-primary-600/20">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-sans font-extrabold text-slate-900">Review Loan Terms</h1>
+                    <p class="text-slate-500 text-sm">Offered by {{ offer.lender.username }}</p>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Term Cards -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Principle</p>
+                        <p class="text-xl font-sans font-extrabold text-slate-900">Rs. {{ offer.amount|floatformat:0 }}</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Interest Rate</p>
+                        <p class="text-xl font-sans font-extrabold text-emerald-600">{{ offer.interest_rate }}% <span class="text-[10px] text-slate-400">/mo</span></p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Duration</p>
+                        <p class="text-xl font-sans font-extrabold text-slate-900">{{ offer.duration_months }} <span class="text-xs text-slate-400 font-bold uppercase">Months</span></p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Due</p>
+                        <p class="text-xl font-sans font-extrabold text-slate-900">Rs. {{ offer.amount|floatformat:0 }}</p> <!-- Simplified for UI, logic handles DB -->
+                    </div>
+                </div>
+
+                {% if offer.description %}
+                <div class="bg-amber-50/50 p-4 rounded-2xl border border-amber-100">
+                    <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2">Lender's Note</p>
+                    <p class="text-sm text-slate-600 italic">"{{ offer.description }}"</p>
+                </div>
+                {% endif %}
+
+                <!-- Warning -->
+                <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100 flex gap-3">
+                    <i class="fas fa-exclamation-triangle text-rose-500 mt-1"></i>
+                    <p class="text-xs text-rose-700 leading-relaxed font-medium">
+                        By confirming, you agree to repay this amount within {{ offer.duration_months }} months. Late payments may result in trust score penalties and fines.
+                    </p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-black transition-all shadow-xl hover:-translate-y-1 active:translate-y-0">
+                        Confirm Loan Request
+                    </button>
+                    <a href="{% url 'marketplace' %}" class="block text-center mt-4 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">
+                        Cancel and Go Back
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

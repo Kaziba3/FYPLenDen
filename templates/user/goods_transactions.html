@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Exchanges - LenDen{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-10">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-sans font-extrabold text-slate-900">My Exchanges</h1>
+            <p class="text-slate-500 mt-1">Manage your item lending and borrowing requests</p>
+        </div>
+        <a href="{% url 'goods' %}" class="btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Marketplace
+        </a>
+    </div>
+
+    <!-- Incoming Requests (Lending) -->
+    <section class="space-y-6">
+        <h2 class="text-xl font-sans font-bold text-slate-900 flex items-center gap-2">
+            <i class="fas fa-hand-holding-heart text-primary-500"></i> Incoming Requests
+        </h2>
+        <div class="grid grid-cols-1 gap-4">
+            {% for tx in incoming_requests %}
+            <div class="premium-card p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900">{{ tx.item.item_name }}</h3>
+                        <p class="text-sm text-slate-500">Requested by <span class="font-bold text-slate-700">{{ tx.borrower.username }}</span></p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <span class="px-3 py-1 text-[10px] font-black rounded-full uppercase 
+                        {% if tx.status == 'PENDING' %}bg-amber-100 text-amber-800
+                        {% elif tx.status == 'APPROVED' %}bg-blue-100 text-blue-800
+                        {% elif tx.status == 'COMPLETED' %}bg-emerald-100 text-emerald-800
+                        {% elif tx.status == 'RETURNED' %}bg-slate-100 text-slate-600
+                        {% else %}bg-rose-100 text-rose-800{% endif %}">
+                        {{ tx.status }}
+                    </span>
+                    
+                    <div class="flex items-center gap-2">
+                        {% if tx.status == 'PENDING' %}
+                        <form method="post" action="{% url 'manage_exchange' tx.id %}" class="inline">
+                            {% csrf_token %}
+                            <button name="action" value="approve" class="px-4 py-2 bg-emerald-500 text-white text-xs font-bold rounded-xl hover:bg-emerald-600 transition-all">Approve</button>
+                            <button name="action" value="reject" class="px-4 py-2 bg-rose-500 text-white text-xs font-bold rounded-xl hover:bg-rose-600 transition-all">Reject</button>
+                        </form>
+                        {% elif tx.status == 'COMPLETED' %}
+                        <form method="post" action="{% url 'complete_exchange' tx.id %}" class="inline">
+                            {% csrf_token %}
+                            <button name="action" value="return" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-black transition-all">Confirm Return</button>
+                        </form>
+                        {% elif tx.status == 'RETURNED' and not tx.reviews.exists %}
+                        <button onclick="openReviewModal('{{ tx.borrower.id }}', '{{ tx.borrower.username }}', 'GOODS', '{{ tx.id }}')" 
+                                class="px-4 py-2 bg-primary-600 text-white text-xs font-bold rounded-xl hover:bg-primary-700 transition-all">Rate Borrower</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="bg-white rounded-[2rem] p-10 text-center border border-dashed border-slate-200">
+                <p class="text-slate-400 font-medium">No incoming requests yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- My Requests (Borrowing) -->
+    <section class="space-y-6">
+        <h2 class="text-xl font-sans font-bold text-slate-900 flex items-center gap-2">
+            <i class="fas fa-shopping-basket text-primary-500"></i> My Requests
+        </h2>
+        <div class="grid grid-cols-1 gap-4">
+            {% for tx in my_requests %}
+            <div class="premium-card p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900">{{ tx.item.item_name }}</h3>
+                        <p class="text-sm text-slate-500">Owner: <span class="font-bold text-slate-700">{{ tx.lender.username }}</span></p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <span class="px-3 py-1 text-[10px] font-black rounded-full uppercase 
+                        {% if tx.status == 'PENDING' %}bg-amber-100 text-amber-800
+                        {% elif tx.status == 'APPROVED' %}bg-blue-100 text-blue-800
+                        {% elif tx.status == 'COMPLETED' %}bg-emerald-100 text-emerald-800
+                        {% elif tx.status == 'RETURNED' %}bg-slate-100 text-slate-600
+                        {% else %}bg-rose-100 text-rose-800{% endif %}">
+                        {{ tx.status }}
+                    </span>
+                    
+                    <div class="flex items-center gap-2">
+                        {% if tx.status == 'APPROVED' %}
+                        <form method="post" action="{% url 'complete_exchange' tx.id %}" class="inline">
+                            {% csrf_token %}
+                            <button name="action" value="complete" class="px-4 py-2 bg-emerald-500 text-white text-xs font-bold rounded-xl hover:bg-emerald-600 transition-all">Mark as Received</button>
+                        </form>
+                        {% elif tx.status == 'COMPLETED' and not tx.reviews.exists %}
+                         <button onclick="openReviewModal('{{ tx.lender.id }}', '{{ tx.lender.username }}', 'GOODS', '{{ tx.id }}')" 
+                                class="px-4 py-2 bg-primary-600 text-white text-xs font-bold rounded-xl hover:bg-primary-700 transition-all">Rate Owner</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="bg-white rounded-[2rem] p-10 text-center border border-dashed border-slate-200">
+                <p class="text-slate-400 font-medium">You haven't requested any items yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<!-- Review Modal -->
+<div id="review-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-sans font-bold">Rate User</h2>
+            <button onclick="document.getElementById('review-modal').classList.add('hidden')" class="h-8 w-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+        <form method="post" action="{% url 'submit_review' %}" class="space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="reviewee_id" id="review_user_id">
+            <input type="hidden" name="transaction_type" id="review_tx_type">
+            <input type="hidden" name="transaction_id" id="review_tx_id">
+            
+            <p class="text-sm text-slate-500 mb-4">How was your experience with <span id="review_username" class="font-bold text-slate-900"></span>?</p>
+            
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Rating (1-5)</label>
+                <div class="flex items-center gap-2">
+                    {% for i in "12345" %}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="rating" value="{{ forloop.counter }}" class="hidden peer" required>
+                        <div class="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-300 peer-checked:bg-amber-100 peer-checked:text-amber-500 hover:bg-slate-100 transition-all">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Your Comment</label>
+                <textarea name="comment" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all resize-none" placeholder="Share your experience..."></textarea>
+            </div>
+            
+            <button type="submit" class="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-black transition-all">Submit Review</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openReviewModal(userId, username, txType, txId) {
+    document.getElementById('review_user_id').value = userId;
+    document.getElementById('review_username').innerText = username;
+    document.getElementById('review_tx_type').value = txType;
+    document.getElementById('review_tx_id').value = txId;
+    document.getElementById('review-modal').classList.remove('hidden');
+}
+</script>
+{% endblock %}

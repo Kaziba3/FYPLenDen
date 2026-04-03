@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Messages - LenDen{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-sans font-extrabold text-slate-900 mb-6">Messages</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden"
+        style="height: 75vh;">
+        <!-- Conversation List -->
+        <div class="border-r border-slate-100 overflow-y-auto">
+            <div class="p-4 border-b border-slate-50 bg-slate-50/50">
+                <input type="text" placeholder="Search conversations..."
+                    class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all">
+            </div>
+            {% for conv in conversations %}
+            <a href="{% url 'chat' %}?user_id={{ conv.other_user.id }}"
+                class="flex items-center gap-3 p-4 hover:bg-slate-50/70 transition-all {% if conv.other_user.id == active_user_id %}bg-primary-50/30 border-r-2 border-primary-600{% endif %}">
+                <div
+                    class="h-11 w-11 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center font-bold text-base flex-shrink-0">
+                    {{ conv.other_user.username|first|upper }}</div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <p class="font-bold text-slate-900 text-sm">{{ conv.other_user.username }}</p>
+                        <span class="text-[10px] text-slate-400">{{ conv.last_message.timestamp|timesince|truncatewords:2 }} ago</span>
+                    </div>
+                    <p class="text-xs text-slate-400 truncate mt-0.5">{{ conv.last_message.content|truncatechars:40 }}
+                    </p>
+                </div>
+                {% if conv.unread_count %}
+                <div
+                    class="h-5 w-5 bg-primary-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center flex-shrink-0">
+                    {{ conv.unread_count }}</div>
+                {% endif %}
+            </a>
+            {% empty %}
+            <div class="p-12 text-center">
+                <i class="fas fa-comment-slash text-3xl text-slate-200 mb-3 block"></i>
+                <p class="text-sm text-slate-400">No conversations yet.<br>Connect with friends to start chatting.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Chat Window -->
+        <div class="lg:col-span-2 flex flex-col min-h-0">
+            {% if active_chat %}
+            <!-- Chat Header -->
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-white">
+                <div
+                    class="h-10 w-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center font-bold">
+                    {{ active_chat_user.username|first|upper }}</div>
+                <div class="flex-1">
+                    <p class="font-sans font-bold text-slate-900">{{ active_chat_user.username }}</p>
+                    <div class="flex items-center gap-2">
+                        <span id="connection-status" class="h-1.5 w-1.5 rounded-full bg-slate-300"></span>
+                        <p id="connection-text" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Connecting...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chat-messages">
+                {% for message in chat_messages %}
+                <div class="flex {% if message.sender == user %}justify-end{% else %}justify-start{% endif %}">
+                    <div
+                        class="max-w-xs lg:max-w-md {% if message.sender == user %}bg-primary-600 text-white rounded-[1.25rem] rounded-tr-sm{% else %}bg-slate-100 text-slate-800 rounded-[1.25rem] rounded-tl-sm{% endif %} px-4 py-3 shadow-sm">
+                        <p class="text-sm font-medium">{{ message.message }}</p>
+                        <p
+                            class="text-[10px] mt-1 {% if message.sender == user %}text-primary-200{% else %}text-slate-400{% endif %}">
+                            {{ message.timestamp|time:"H:i" }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="flex-1 flex items-center justify-center text-slate-300">
+                    <p class="text-sm font-medium">Say hello to {{ active_chat_user.username }}!</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Message Input -->
+            <div class="px-6 py-4 border-t border-slate-100 bg-white">
+                <form method="post" action="{% url 'chat' %}?user_id={{ active_chat_user.id }}"
+                    class="flex items-center gap-3">
+                    {% csrf_token %}
+                    <input type="text" name="content" autocomplete="off" required
+                        class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all"
+                        placeholder="Type a message...">
+                    <button type="submit"
+                        class="h-12 w-12 bg-primary-600 text-white rounded-2xl flex items-center justify-center hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20">
+                        <i class="fas fa-paper-plane text-sm"></i>
+                    </button>
+                </form>
+            </div>
+            {% else %}
+            <div class="flex-1 flex items-center justify-center text-center p-10">
+                <div>
+                    <div
+                        class="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-200">
+                        <i class="fas fa-comments text-3xl"></i>
+                    </div>
+                    <h3 class="font-sans font-bold text-slate-900 text-lg mb-2">Select a Conversation</h3>
+                    <p class="text-sm text-slate-400">Choose from your contacts on the left to start messaging.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById('chat-messages');
+    const messageForm = document.querySelector('form');
+    const messageInput = document.querySelector('input[name="content"]');
+    const userId = "{{ active_chat_user.id }}";
+    const currentUserId = "{{ user.id }}";
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session_id');
+
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+    // WebSocket Connection
+    let wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + 
+                window.location.host + '/ws/chat/' + userId + '/';
+    
+    if (sessionId) {
+        wsUrl += '?session_id=' + sessionId;
+    }
+
+    const chatSocket = new WebSocket(wsUrl);
+    const statusDot = document.getElementById('connection-status');
+    const statusText = document.getElementById('connection-text');
+
+    chatSocket.onopen = function(e) {
+        console.log('Chat socket connected.');
+        if (statusDot) {
+            statusDot.classList.remove('bg-slate-300', 'bg-rose-500');
+            statusDot.classList.add('bg-emerald-500');
+        }
+        if (statusText) {
+            statusText.innerText = 'Connected';
+            statusText.classList.remove('text-slate-400', 'text-rose-500');
+            statusText.classList.add('text-emerald-500');
+        }
+        
+        // Request immediate state of other user
+        chatSocket.send(JSON.stringify({'type': 'check_presence'}));
+    };
+
+    chatSocket.onmessage = function(e) {
+        try {
+            const data = JSON.parse(e.data);
+            
+            // Handle Presence update
+            if (data.type === 'presence') {
+                if (String(data.user_id) === String(userId)) {
+                    const isOnline = data.status === 'online';
+                    if (statusDot) {
+                        statusDot.classList.toggle('bg-emerald-500', isOnline);
+                        statusDot.classList.toggle('bg-slate-300', !isOnline);
+                    }
+                    if (statusText) {
+                        statusText.innerText = isOnline ? 'Online' : 'Offline';
+                        statusText.classList.toggle('text-emerald-500', isOnline);
+                        statusText.classList.toggle('text-slate-400', !isOnline);
+                    }
+                }
+                return;
+            }
+
+            // Handle Chat Message
+            if (data.type === 'chat_message' || !data.type) {
+                const isMe = Number(data.sender_id) === Number(currentUserId);
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
+                
+                messageDiv.innerHTML = `
+                    <div class="max-w-xs lg:max-w-md ${isMe ? 'bg-primary-600 text-white rounded-[1.25rem] rounded-tr-sm' : 'bg-slate-100 text-slate-800 rounded-[1.25rem] rounded-tl-sm'} px-4 py-3 shadow-sm">
+                        <p class="text-sm font-medium">${data.message}</p>
+                        <p class="text-[10px] mt-1 ${isMe ? 'text-primary-200' : 'text-slate-400'}">${data.timestamp || 'Just now'}</p>
+                    </div>
+                `;
+                
+                chatBox.appendChild(messageDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                const placeholder = chatBox.querySelector('.text-slate-300');
+                if (placeholder) placeholder.remove();
+            }
+        } catch (err) {
+            console.error('Error parsing message:', err);
+        }
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly. Falling back to traditional messaging.');
+        if (statusDot) {
+            statusDot.classList.remove('bg-emerald-500', 'bg-slate-300');
+            statusDot.classList.add('bg-rose-500');
+        }
+        if (statusText) {
+            statusText.innerText = 'Offline (Fallback Enabled)';
+            statusText.classList.remove('text-emerald-500', 'text-slate-400');
+            statusText.classList.add('text-rose-500');
+        }
+    };
+
+    if (messageForm) {
+        messageForm.onsubmit = function(e) {
+            const message = messageInput.value;
+            if (message && chatSocket.readyState === WebSocket.OPEN) {
+                e.preventDefault();
+                chatSocket.send(JSON.stringify({
+                    'message': message
+                }));
+                messageInput.value = '';
+            } else {
+                console.log('Commencing standard POST submission...');
+            }
+        };
+    }
+</script>
+{% endblock %}

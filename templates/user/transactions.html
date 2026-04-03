@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Transactions - LenDen{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-10">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-sans font-extrabold text-slate-900">Transaction Ledger</h1>
+            <p class="text-slate-500 mt-1">A complete record of all your lending and borrowing activity</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+            <div class="space-y-2 lg:col-span-2">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Search</label>
+                <div class="relative">
+                    <i class="fas fa-search absolute left-4 top-3.5 text-slate-400"></i>
+                    <input type="text" name="search" value="{{ filters.search }}" class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-slate-400 focus:bg-white transition-all font-medium placeholder-slate-400" placeholder="User or Item Name...">
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Status</label>
+                <select name="status" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-slate-400 focus:bg-white transition-all font-medium text-slate-600 appearance-none">
+                    <option value="">All Statuses</option>
+                    <option value="ACTIVE" {% if filters.status == 'ACTIVE' %}selected{% endif %}>Active</option>
+                    <option value="PENDING" {% if filters.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                    <option value="REPAID" {% if filters.status == 'REPAID' %}selected{% endif %}>Repaid</option>
+                    <option value="APPROVED" {% if filters.status == 'APPROVED' %}selected{% endif %}>Approved (Goods)</option>
+                    <option value="COMPLETED" {% if filters.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                    <option value="RETURNED" {% if filters.status == 'RETURNED' %}selected{% endif %}>Returned</option>
+                    <option value="REJECTED" {% if filters.status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                    <option value="DEFAULTED" {% if filters.status == 'DEFAULTED' %}selected{% endif %}>Defaulted</option>
+                </select>
+            </div>
+            
+            <div class="space-y-2 lg:col-span-2 grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">From Date</label>
+                    <input type="date" name="start_date" value="{{ filters.start_date }}" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-slate-400 focus:bg-white transition-all font-medium text-slate-500">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">To Date</label>
+                    <input type="date" name="end_date" value="{{ filters.end_date }}" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-slate-400 focus:bg-white transition-all font-medium text-slate-500">
+                </div>
+            </div>
+
+            <div class="flex justify-end items-end space-y-2 lg:col-span-1">
+                <button type="submit" class="w-full h-[46px] bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-filter text-xs"></i> Filter
+                </button>
+            </div>
+
+            <!-- Interest Rate Filters (Money Only) -->
+            <div class="space-y-2 lg:col-span-6 grid grid-cols-1 md:grid-cols-4 gap-4 pt-2 border-t border-slate-100 mt-2">
+                <div class="md:col-start-1">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Min Interest (%)</label>
+                    <input type="number" step="0.01" name="min_interest" value="{{ filters.min_interest }}" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-slate-400 focus:bg-white transition-all font-medium text-slate-600 mt-2" placeholder="0.00">
+                </div>
+                <div class="md:col-start-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Max Interest (%)</label>
+                    <input type="number" step="0.01" name="max_interest" value="{{ filters.max_interest }}" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-slate-400 focus:bg-white transition-all font-medium text-slate-600 mt-2" placeholder="100.00">
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Borrowed Money -->
+    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+        <div class="px-8 py-6 border-b border-slate-50 flex items-center gap-3">
+            <div class="h-10 w-10 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center">
+                <i class="fas fa-arrow-left-long"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-sans font-bold text-slate-900">Borrowed Capital</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Loans you have received</p>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50/50 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                    <tr>
+                        <th class="px-8 py-4 text-left">Lender</th>
+                        <th class="px-4 py-4 text-right">Amount</th>
+                        <th class="px-4 py-4 text-center">Interest</th>
+                        <th class="px-4 py-4 text-center">Duration</th>
+                        <th class="px-4 py-4 text-center">Status</th>
+                        <th class="px-8 py-4 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for borrow in borrows %}
+                    <tr class="group hover:bg-slate-50/50 transition-all">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="h-9 w-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm">
+                                    {{ borrow.lender.username|first|upper }}</div>
+                                <span class="text-sm font-bold text-slate-900">{{ borrow.lender.username }}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-5 text-sm font-extrabold text-slate-900 text-right">Rs. {{ borrow.amount|floatformat:2 }}</td>
+                        <td class="px-4 py-5 text-sm font-bold text-rose-500 text-center">{{ borrow.interest_rate }}%
+                        </td>
+                        <td class="px-4 py-5 text-sm text-slate-500 text-center">{{ borrow.duration_months }} months</td>
+                        <td class="px-4 py-5 text-center">
+                            <span
+                                class="px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest {% if borrow.status == 'ACTIVE' %}bg-emerald-100 text-emerald-800{% elif borrow.status == 'PENDING' %}bg-amber-100 text-amber-800{% else %}bg-blue-100 text-blue-800{% endif %}">{{ borrow.status }}</span>
+                        </td>
+                        <td class="px-8 py-5 text-center">
+                            {% if borrow.status == 'ACTIVE' %}
+                            <form method="POST" class="inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="repay">
+                                <input type="hidden" name="transaction_id" value="{{ borrow.id }}">
+                                <button type="submit" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-black transition-all">
+                                    Repay
+                                </button>
+                            </form>
+                            {% elif borrow.status == 'REPAID' and not borrow.reviews.exists %}
+                            <button onclick="openReviewModal('{{ borrow.lender.id }}', '{{ borrow.lender.username }}', 'MONEY', '{{ borrow.id }}')" 
+                                    class="px-4 py-2 bg-primary-600 text-white text-xs font-bold rounded-xl hover:bg-primary-700 transition-all">
+                                Rate Lender
+                            </button>
+                            {% else %}
+                            <span class="text-xs text-slate-300 font-bold">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-8 py-16 text-center text-slate-400 text-sm font-medium">No borrowed
+                            loans on record.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Lent Money -->
+    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+        <div class="px-8 py-6 border-b border-slate-50 flex items-center gap-3">
+            <div class="h-10 w-10 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center">
+                <i class="fas fa-arrow-right-from-bracket"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-sans font-bold text-slate-900">Deployed Capital</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Loans you have issued</p>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50/50 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                    <tr>
+                        <th class="px-8 py-4 text-left">Borrower</th>
+                        <th class="px-4 py-4 text-right">Amount</th>
+                        <th class="px-4 py-4 text-center">Interest</th>
+                        <th class="px-4 py-4 text-center">Duration</th>
+                        <th class="px-4 py-4 text-center">Status</th>
+                        <th class="px-4 py-4 text-center">Date</th>
+                        <th class="px-8 py-4 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for lend in lendings %}
+                    <tr class="group hover:bg-slate-50/50 transition-all">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">
+                                    {{ lend.borrower.username|first|upper }}</div>
+                                <span class="text-sm font-bold text-slate-900">{{ lend.borrower.username }}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-5 text-sm font-extrabold text-slate-900 text-right">Rs. {{ lend.amount|floatformat:2 }}</td>
+                        <td class="px-4 py-5 text-sm font-bold text-emerald-500 text-center">{{ lend.interest_rate }}%
+                        </td>
+                        <td class="px-4 py-5 text-sm text-slate-500 text-center">{{ lend.duration_months }} months</td>
+                        <td class="px-4 py-5 text-center">
+                            <span
+                                class="px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest {% if lend.payment_status == 'COMPLETED' %}bg-emerald-100 text-emerald-800{% elif lend.status == 'APPROVED' %}bg-amber-100 text-amber-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                {% if lend.status == 'APPROVED' and lend.payment_status != 'COMPLETED' %}AWAITING FUNDS{% else %}{{ lend.status }}{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-4 py-5 text-center text-xs text-slate-400 font-medium">{{ lend.created_at|date:"M d, Y" }}</td>
+                        <td class="px-8 py-5 text-center">
+                            {% if lend.status == 'APPROVED' and lend.payment_status != 'COMPLETED' %}
+                            <a href="{% url 'esewa_initiate' lend.id %}"
+                                class="px-4 py-2 bg-primary-600 text-white text-xs font-bold rounded-xl hover:bg-primary-700 transition-all flex items-center gap-2 justify-center">
+                                <i class="fas fa-wallet"></i> Fund Now
+                            </a>
+                            {% elif lend.status == 'REPAID' and not lend.reviews.exists %}
+                            <button onclick="openReviewModal('{{ lend.borrower.id }}', '{{ lend.borrower.username }}', 'MONEY', '{{ lend.id }}')" 
+                                    class="px-4 py-2 bg-primary-600 text-white text-xs font-bold rounded-xl hover:bg-primary-700 transition-all">
+                                Rate Borrower
+                            </button>
+                            {% else %}
+                            <span class="text-xs text-slate-300 font-bold">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-8 py-16 text-center text-slate-400 text-sm font-medium">You haven't
+                            issued any loans yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Borrowed Goods -->
+    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden mt-10">
+        <div class="px-8 py-6 border-b border-slate-50 flex items-center gap-3">
+            <div class="h-10 w-10 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center">
+                <i class="fas fa-box-open"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-sans font-bold text-slate-900">Borrowed Goods</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Physical items you have requested</p>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50/50 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                    <tr>
+                        <th class="px-8 py-4 text-left">Lender</th>
+                        <th class="px-4 py-4 text-left">Item Name</th>
+                        <th class="px-4 py-4 text-center">Date</th>
+                        <th class="px-4 py-4 text-center">Status</th>
+                        <th class="px-8 py-4 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for g in goods_borrows %}
+                    <tr class="group hover:bg-slate-50/50 transition-all">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="h-9 w-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm">
+                                    {{ g.lender.username|first|upper }}</div>
+                                <span class="text-sm font-bold text-slate-900">{{ g.lender.username }}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-5 text-sm font-bold text-slate-900">{{ g.item.item_name }}</td>
+                        <td class="px-4 py-5 text-center text-xs text-slate-400 font-medium">{{ g.created_at|date:"M d, Y" }}</td>
+                        <td class="px-4 py-5 text-center">
+                            <span class="px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest {% if g.status == 'COMPLETED' or g.status == 'RETURNED' %}bg-emerald-100 text-emerald-800{% elif g.status == 'PENDING' %}bg-amber-100 text-amber-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                {{ g.status }}
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-center">
+                            {% if g.status == 'COMPLETED' or g.status == 'RETURNED' %}
+                                {% if not g.reviews.exists %}
+                                <button onclick="openReviewModal('{{ g.lender.id }}', '{{ g.lender.username }}', 'GOODS', '{{ g.id }}')" class="px-4 py-2 bg-primary-600 text-white text-xs font-bold rounded-xl hover:bg-primary-700 transition-all">
+                                    Rate Lender
+                                </button>
+                                {% else %}
+                                <span class="text-xs text-slate-300 font-bold">—</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-xs text-slate-300 font-bold">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-8 py-16 text-center text-slate-400 text-sm font-medium">No borrowed goods on record.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Lent Goods -->
+    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden mt-10">
+        <div class="px-8 py-6 border-b border-slate-50 flex items-center gap-3">
+            <div class="h-10 w-10 bg-teal-50 text-teal-500 rounded-xl flex items-center justify-center">
+                <i class="fas fa-boxes"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-sans font-bold text-slate-900">Lent Goods</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Physical items you have lent out</p>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50/50 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                    <tr>
+                        <th class="px-8 py-4 text-left">Borrower</th>
+                        <th class="px-4 py-4 text-left">Item Name</th>
+                        <th class="px-4 py-4 text-center">Date</th>
+                        <th class="px-4 py-4 text-center">Status</th>
+                        <th class="px-8 py-4 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for g in goods_lends %}
+                    <tr class="group hover:bg-slate-50/50 transition-all">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="h-9 w-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-sm">
+                                    {{ g.borrower.username|first|upper }}</div>
+                                <span class="text-sm font-bold text-slate-900">{{ g.borrower.username }}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-5 text-sm font-bold text-slate-900">{{ g.item.item_name }}</td>
+                        <td class="px-4 py-5 text-center text-xs text-slate-400 font-medium">{{ g.created_at|date:"M d, Y" }}</td>
+                        <td class="px-4 py-5 text-center">
+                            <span class="px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest {% if g.status == 'COMPLETED' or g.status == 'RETURNED' %}bg-emerald-100 text-emerald-800{% elif g.status == 'PENDING' %}bg-amber-100 text-amber-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                {{ g.status }}
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-center">
+                            {% if g.status == 'COMPLETED' or g.status == 'RETURNED' %}
+                                {% if not g.reviews.exists %}
+                                <button onclick="openReviewModal('{{ g.borrower.id }}', '{{ g.borrower.username }}', 'GOODS', '{{ g.id }}')" class="px-4 py-2 bg-primary-600 text-white text-xs font-bold rounded-xl hover:bg-primary-700 transition-all">
+                                    Rate Borrower
+                                </button>
+                                {% else %}
+                                <span class="text-xs text-slate-300 font-bold">—</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-xs text-slate-300 font-bold">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-8 py-16 text-center text-slate-400 text-sm font-medium">No lent goods on record.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Review Modal -->
+<div id="review-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-sans font-bold">Rate User</h2>
+            <button onclick="document.getElementById('review-modal').classList.add('hidden')" class="h-8 w-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+        <form method="post" action="{% url 'submit_review' %}" class="space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="reviewee_id" id="review_user_id">
+            <input type="hidden" name="transaction_type" id="review_tx_type">
+            <input type="hidden" name="transaction_id" id="review_tx_id">
+            
+            <p class="text-sm text-slate-500 mb-4">How was your experience with <span id="review_username" class="font-bold text-slate-900"></span>?</p>
+            
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Rating (1-5)</label>
+                <div class="flex items-center gap-2">
+                    {% for i in "12345" %}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="rating" value="{{ forloop.counter }}" class="hidden peer" required>
+                        <div class="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-300 peer-checked:bg-amber-100 peer-checked:text-amber-500 hover:bg-slate-100 transition-all">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Your Comment</label>
+                <textarea name="comment" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all resize-none" placeholder="Share your experience..."></textarea>
+            </div>
+            
+            <button type="submit" class="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-black transition-all">Submit Review</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openReviewModal(userId, username, txType, txId) {
+    document.getElementById('review_user_id').value = userId;
+    document.getElementById('review_username').innerText = username;
+    document.getElementById('review_tx_type').value = txType;
+    document.getElementById('review_tx_id').value = txId;
+    document.getElementById('review-modal').classList.remove('hidden');
+}
+</script>
+{% endblock %}
+k %}

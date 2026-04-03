@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel - LenDen{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --dark-green: #1B5E20;
+            --light-green: #4CAF50;
+            --lighter-green: #C8E6C9;
+            --accent-green: #81C784;
+            --bg-color: #F8FAF9;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: 'var(--lighter-green)',
+                            100: 'var(--lighter-green)',
+                            200: 'var(--accent-green)', 
+                            300: 'var(--accent-green)',
+                            400: 'var(--light-green)', 
+                            500: 'var(--light-green)', 
+                            600: 'var(--primary-green)', 
+                            700: 'var(--primary-green)',
+                            800: 'var(--dark-green)', 
+                            900: 'var(--dark-green)', 
+                            950: '#052e16',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="min-h-screen bg-gray-950 text-white">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-900 border-r border-white/5 flex flex-col">
+            <div class="p-6 border-b border-white/5">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="h-10 w-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-600/20">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                    </div>
+                    <div>
+                        <span class="text-lg font-sans font-extrabold text-white">LenDen</span>
+                        <p class="text-[10px] font-bold text-primary-400 uppercase tracking-wider">Admin Panel</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-1">
+                <a href="{% url 'admin_dashboard' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-primary-600 text-white shadow-lg shadow-primary-600/20{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %} transition-all">
+                    <i class="fas fa-gauge-high w-4"></i> Overview
+                </a>
+                <a href="{% url 'admin_kyc_verification' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold {% if request.resolver_match.url_name == 'admin_kyc_verification' %}bg-primary-600 text-white shadow-lg shadow-primary-600/20{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %} transition-all">
+                    <i class="fas fa-id-card-clip w-4"></i> KYC Reviews
+                </a>
+                <a href="{% url 'admin_user_management' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold {% if request.resolver_match.url_name == 'admin_user_management' %}bg-primary-600 text-white shadow-lg shadow-primary-600/20{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %} transition-all">
+                    <i class="fas fa-users w-4"></i> Users
+                </a>
+                <a href="{% url 'admin_reports' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold {% if request.resolver_match.url_name == 'admin_reports' %}bg-primary-600 text-white shadow-lg shadow-primary-600/20{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %} transition-all">
+                    <i class="fas fa-chart-line w-4"></i> Reports
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-white/5 space-y-2">
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-gray-400 hover:text-rose-400 hover:bg-white/5 transition-all">
+                        <i class="fas fa-power-off w-4"></i> Sign Out
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto bg-gray-950">
+            <div class="p-8 space-y-8">
+                {% block admin_content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

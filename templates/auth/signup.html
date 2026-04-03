@@ -1,104 +1,148 @@
-{% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}Sign Up - PeerLend{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/auth.css' %}">
-{% endblock %}
-
-{% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h1><i class="fas fa-user-plus"></i> Join PeerLend</h1>
-            <p>Create your account to start lending and borrowing</p>
-        </div>
-        <div class="auth-body">
-            <form method="POST" class="auth-form">
-                {% csrf_token %}
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="first_name" class="form-label">First Name</label>
-                            <input type="text" id="first_name" name="first_name" class="form-control" required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="last_name" class="form-label">Last Name</label>
-                            <input type="text" id="last_name" name="last_name" class="form-control" required>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="phone" class="form-label">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
-                    <div class="password-strength">
-                        <div class="strength-bar">
-                            <div class="strength-fill"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="confirm_password" class="form-label">Confirm Password</label>
-                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="referral" class="form-label">Referral Code (Optional)</label>
-                    <input type="text" id="referral" name="referral" class="form-control">
-                </div>
-                
-                <div class="form-group form-check">
-                    <input type="checkbox" id="terms" name="terms" class="form-check-input" required>
-                    <label for="terms" class="form-check-label">
-                        I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
-                    </label>
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-large" style="width: 100%;">
-                    <i class="fas fa-user-check"></i> Create Account
-                </button>
-                
-                <div class="auth-footer">
-                    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
-                    <p>By signing up, you agree to complete KYC verification</p>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirm_password');
-        
-        function validatePassword() {
-            if (password.value !== confirmPassword.value) {
-                confirmPassword.setCustomValidity("Passwords don't match");
-            } else {
-                confirmPassword.setCustomValidity('');
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - LenDen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        outfit: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#C8E6C9',
+                            100: '#C8E6C9',
+                            200: '#81C784', 
+                            300: '#81C784',
+                            400: '#4CAF50', 
+                            500: '#4CAF50', 
+                            600: '#2E7D32', 
+                            700: '#2E7D32',
+                            800: '#1B5E20', 
+                            900: '#1B5E20', 
+                            950: '#052e16',
+                        },
+                    }
+                }
             }
         }
-        
-        password.onchange = validatePassword;
-        confirmPassword.onkeyup = validatePassword;
-    });
-</script>
-{% endblock %}
+    </script>
+</head>
+
+<body class="min-h-screen bg-[var(--bg-color)] flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-10">
+            <a href="{% url 'landing_page' %}" class="inline-flex items-center gap-3 group">
+                <div
+                    class="h-12 w-12 bg-primary-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary-600/20 transition-transform group-hover:scale-110">
+                    <i class="fas fa-hand-holding-dollar text-xl"></i>
+                </div>
+                <span class="text-3xl font-sans font-extrabold text-primary-600">LenDen</span>
+            </a>
+            <p class="mt-3 text-sm text-gray-500 font-medium">Join the trusted P2P lending community</p>
+        </div>
+
+        <div class="bg-white rounded-[2.5rem] shadow-premium-lg border border-primary-100/50 p-10 relative overflow-hidden">
+            <!-- Decorative Elements -->
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary-50/50 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-primary-50/50 rounded-full blur-3xl"></div>
+
+            <!-- Messages -->
+            {% if messages %}
+            <div class="mb-8 space-y-3 relative z-10">
+                {% for message in messages %}
+                <div class="p-4 rounded-2xl text-sm font-semibold shadow-sm animate-in fade-in slide-in-from-top-4 duration-300 {% if 'error' in message.tags %}bg-rose-50 text-rose-700 border border-rose-100{% elif 'warning' in message.tags %}bg-amber-50 text-amber-700 border border-amber-100{% else %}bg-emerald-50 text-emerald-700 border border-emerald-100{% endif %}">
+                    <div class="flex items-center gap-3">
+                        {% if 'error' in message.tags %}
+                        <i class="fas fa-circle-exclamation text-rose-500"></i>
+                        {% elif 'warning' in message.tags %}
+                        <i class="fas fa-triangle-exclamation text-amber-500"></i>
+                        {% else %}
+                        <i class="fas fa-circle-check text-emerald-500"></i>
+                        {% endif %}
+                        {{ message }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'signup' %}" class="space-y-5 relative z-10">
+                {% csrf_token %}
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">First Name</label>
+                        <input type="text" name="first_name" required
+                            class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl px-4 py-4 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white transition-all"
+                            placeholder="John">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Last Name</label>
+                        <input type="text" name="last_name" required
+                            class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl px-4 py-4 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white transition-all"
+                            placeholder="Doe">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Username</label>
+                    <div class="relative group">
+                        <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm transition-colors group-focus-within:text-primary-600"></i>
+                        <input type="text" name="username" required autocomplete="username"
+                            class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-semibold text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white transition-all"
+                            placeholder="Choose a unique username">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
+                    <div class="relative group">
+                        <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm transition-colors group-focus-within:text-primary-600"></i>
+                        <input type="email" name="email" required
+                            class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-semibold text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white transition-all"
+                            placeholder="your@email.com">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+                    <div class="relative group">
+                        <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm transition-colors group-focus-within:text-primary-600"></i>
+                        <input type="password" name="password" required
+                            class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-semibold text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white transition-all"
+                            placeholder="Create a strong password">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Referral Code <span
+                            class="font-medium normal-case">(optional)</span></label>
+                    <div class="relative group">
+                        <i class="fas fa-gift absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm transition-colors group-focus-within:text-primary-600"></i>
+                        <input type="text" name="referral_code"
+                            class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-semibold text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white transition-all"
+                            placeholder="Enter code">
+                    </div>
+                </div>
+                <button type="submit"
+                    class="w-full py-4 bg-primary-600 text-white font-bold rounded-2xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20 transform hover:-translate-y-1 active:translate-y-0 mt-2">
+                    Create My Account
+                </button>
+            </form>
+
+            <p class="text-center text-sm text-slate-400 mt-8 relative z-10">
+                Already a member? <a href="{% url 'login' %}" class="font-bold text-primary-600 hover:text-primary-700 transition-colors">Sign
+                    In</a>
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

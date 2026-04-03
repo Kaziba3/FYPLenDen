@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ target_user.username }}'s Profile - LenDen{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <!-- Breadcrumbs/Back -->
+    <a href="{% url 'marketplace' %}" class="inline-flex items-center gap-2 text-slate-500 hover:text-primary-600 font-bold text-sm mb-8 transition-colors">
+        <i class="fas fa-arrow-left text-xs"></i>
+        Back to Marketplace
+    </a>
+
+    <div class="space-y-10">
+        <!-- Header Card -->
+        <div class="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 relative">
+            <!-- Decorative Banner -->
+            <div class="h-48 bg-slate-900 relative">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary-600/30 to-indigo-900/30"></div>
+                <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent"></div>
+            </div>
+
+            <div class="px-8 pb-10 relative">
+                <div class="flex flex-col md:flex-row md:items-end gap-8 -mt-16">
+                    <!-- Avatar -->
+                    <div class="h-32 w-32 rounded-[2rem] bg-white p-2 shadow-2xl relative z-10">
+                        <div class="h-full w-full rounded-[1.5rem] bg-slate-900 text-white flex items-center justify-center text-4xl font-sans font-extrabold">
+                            {{ target_user.username|first|upper }}
+                        </div>
+                    </div>
+
+                    <!-- Identity -->
+                    <div class="flex-1 pb-4">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div class="space-y-1">
+                                <h1 class="text-3xl font-sans font-extrabold text-slate-900 flex items-center gap-3">
+                                    {{ target_user.username }}
+                                    {% if profile.kyc_verified %}
+                                    <span class="h-6 w-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-[10px]" title="KYC Verified">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                    {% endif %}
+                                </h1>
+                                <p class="text-slate-500 font-medium flex items-center gap-2">
+                                    <i class="fas fa-location-dot text-primary-500"></i>
+                                    {{ profile.city|default:"Community Member" }}, {{ profile.state|default:"Nepal" }}
+                                </p>
+                            </div>
+                            <div class="flex gap-3">
+                                <a href="{% url 'chat' %}?user_id={{ target_user.id }}" class="px-8 py-3.5 bg-slate-900 text-white font-bold rounded-2xl hover:bg-black transition-all shadow-xl hover:-translate-y-1 flex items-center gap-2">
+                                    <i class="fas fa-comment-dots text-sm"></i>
+                                    Send Message
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12 pt-10 border-t border-slate-50">
+                    <div class="space-y-1">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Trust Score</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl font-sans font-extrabold text-slate-900">{{ stats.trust_score }}</span>
+                            <div class="h-2 w-16 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-primary-600 rounded-full" style="width: {{ stats.trust_score }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Success Rate</p>
+                        <p class="text-2xl font-sans font-extrabold text-slate-900">100%</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Global Rating</p>
+                        <div class="flex items-center gap-1.5 text-amber-500">
+                            <span class="text-2xl font-sans font-extrabold text-slate-900">
+                                {% if profile.rating and profile.rating > 0 %}
+                                    {{ profile.rating|floatformat:2 }}
+                                {% else %}
+                                    Not Rated
+                                {% endif %}
+                            </span>
+                            {% if profile.rating and profile.rating > 0 %}
+                            <i class="fas fa-star text-sm"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="bg-primary-50 rounded-2xl p-4 border border-primary-100 text-center">
+                        <p class="text-[10px] text-primary-600 font-bold uppercase tracking-widest mb-1">Total Lends</p>
+                        <p class="text-xl font-sans font-extrabold text-slate-900">{{ profile.total_lends }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <!-- Left: Active Offers -->
+            <div class="lg:col-span-2 space-y-10">
+                <div class="space-y-6">
+                    <h3 class="text-xl font-sans font-extrabold text-slate-900 flex items-center gap-3">
+                        <div class="h-8 w-8 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 text-sm">
+                            <i class="fas fa-hand-holding-dollar"></i>
+                        </div>
+                        Active Loan Offers
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for offer in loan_offers %}
+                        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                            <div class="flex justify-between items-start mb-4">
+                                <p class="text-2xl font-sans font-extrabold text-slate-900">Rs. {{ offer.amount|floatformat:0 }}</p>
+                                <span class="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-1 rounded-lg">{{ offer.interest_rate }}% Int</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mb-6 line-clamp-2">{{ offer.description|default:"No additional terms specified." }}</p>
+                            <a href="{% url 'borrow_offer' offer.id %}" class="block w-full text-center py-3 bg-slate-50 text-slate-900 font-bold rounded-xl group-hover:bg-slate-900 group-hover:text-white transition-all text-sm">
+                                Apply for this Loan
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="col-span-2 py-12 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                            <p class="text-slate-400 text-sm font-medium">No active loan offers at the moment.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Reviews -->
+                <div class="space-y-6">
+                    <h3 class="text-xl font-sans font-extrabold text-slate-900 flex items-center gap-3">
+                        <div class="h-8 w-8 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 text-sm">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        Community Feedback
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        {% for review in reviews %}
+                        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-400">
+                                        {{ review.reviewer.username|first|upper }}
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-900">{{ review.reviewer.username }}</p>
+                                        <p class="text-[10px] text-slate-400">{{ review.created_at|date:"M d, Y" }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex text-amber-400 text-[10px]">
+                                    {% for i in "12345"|make_list %}
+                                    <i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p class="text-sm text-slate-600 italic">"{{ review.comment }}"</p>
+                        </div>
+                        {% empty %}
+                        <div class="py-12 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                            <p class="text-slate-400 text-sm font-medium">No community reviews yet.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Sidebar Info -->
+            <div class="space-y-10">
+                <div class="bg-slate-900 rounded-[2rem] p-8 text-white shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-primary-600/20 rounded-bl-full -mr-10 -mt-10"></div>
+                    <div class="relative z-10 space-y-6">
+                        <h4 class="text-lg font-sans font-bold">Lender Verified</h4>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-circle-check text-emerald-400 text-sm"></i>
+                                <span class="text-xs text-slate-300 font-medium">Identity Document Verified</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-circle-check text-emerald-400 text-sm"></i>
+                                <span class="text-xs text-slate-300 font-medium">Residence Address Verified</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-circle-check text-emerald-400 text-sm"></i>
+                                <span class="text-xs text-slate-300 font-medium">Linked Social Reputation</span>
+                            </div>
+                        </div>
+                        <div class="pt-6 border-t border-white/10">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Member Since</p>
+                            <p class="text-sm font-bold">{{ target_user.date_joined|date:"F Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goods Offered -->
+                 <div class="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-50 space-y-6">
+                    <h4 class="font-sans font-extrabold text-slate-900">Goods for Exchange</h4>
+                    <div class="space-y-4">
+                        {% for item in goods_offered %}
+                        <div class="p-4 bg-slate-50 rounded-2xl flex items-center gap-4">
+                            <div class="h-10 w-10 bg-white rounded-xl flex items-center justify-center text-primary-600 border border-slate-100 shadow-sm">
+                                <i class="fas fa-box-open text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">{{ item.item_name }}</p>
+                                <p class="text-[10px] text-slate-500">{{ item.get_exchange_type_display }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-xs text-slate-400 italic">No goods currently listed.</p>
+                        {% endfor %}
+                    </div>
+                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

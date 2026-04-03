@@ -1,0 +1,231 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}User Detail: {{ target_user.username }} | LenDen Admin{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-8">
+    <!-- Header with Breadcrumbs -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <nav class="flex text-xs font-bold uppercase tracking-widest text-gray-500 mb-2 gap-2">
+                <a href="{% url 'admin_user_management' %}" class="hover:text-primary-400 transition-colors">Users</a>
+                <span>/</span>
+                <span class="text-white">Detail</span>
+            </nav>
+            <h1 class="text-3xl font-sans font-extrabold text-white flex items-center gap-4">
+                {{ target_user.get_full_name|default:target_user.username }}
+                {% if profile.kyc_verified %}
+                <span class="px-3 py-1 bg-primary-600/20 text-primary-400 text-[10px] font-bold rounded-full uppercase tracking-tighter">Verified</span>
+                {% else %}
+                <span class="px-3 py-1 bg-amber-500/20 text-amber-400 text-[10px] font-bold rounded-full uppercase tracking-tighter">KYC Pending</span>
+                {% endif %}
+            </h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <form method="POST" action="{% url 'admin_user_management' %}">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value="{{ target_user.id }}">
+                <input type="hidden" name="action" value="toggle_status">
+                <button type="submit" class="px-6 py-3 {% if target_user.is_active %}bg-rose-600/10 text-rose-500 border-rose-600/20{% else %}bg-emerald-600/10 text-emerald-500 border-emerald-600/20{% endif %} border rounded-2xl text-xs font-bold hover:bg-opacity-20 transition-all">
+                    {% if target_user.is_active %}Deactivate Account{% else %}Activate Account{% endif %}
+                </button>
+            </form>
+            <form method="POST" action="{% url 'admin_user_management' %}" onsubmit="return confirm('CRITICAL: Are you sure you want to PERMANENTLY delete this user? This cannot be undone.');">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value="{{ target_user.id }}">
+                <input type="hidden" name="action" value="delete">
+                <button type="submit" class="px-6 py-3 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-2xl text-xs font-bold hover:bg-rose-500/20 transition-all flex items-center gap-2">
+                    <i class="fas fa-trash-can"></i> Delete Account
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-gray-900 p-6 rounded-3xl border border-white/5 space-y-4">
+            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Trust Index</p>
+            <div class="flex items-end gap-2">
+                <span class="text-4xl font-sans font-black text-white leading-none">{{ profile.trust_score }}</span>
+                <span class="text-gray-600 font-bold mb-1">/100</span>
+            </div>
+            <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-primary-500 h-full transition-all duration-1000" style="width: {{ profile.trust_score }}%"></div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 p-6 rounded-3xl border border-white/5 space-y-1">
+            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Active Borrowings</p>
+            <p class="text-3xl font-sans font-black text-white">Rs. {{ borrows_amount|floatformat:2 }}</p>
+            <p class="text-[10px] font-bold text-rose-500 uppercase tracking-tighter">{{ borrows_count }} Active Loans</p>
+        </div>
+
+        <div class="bg-gray-900 p-6 rounded-3xl border border-white/5 space-y-1">
+            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Capital Deployed</p>
+            <p class="text-3xl font-sans font-black text-white">Rs. {{ lendings_amount|floatformat:2 }}</p>
+            <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-tighter">{{ lendings_count }} Active Yields</p>
+        </div>
+
+        <div class="bg-gray-900 p-6 rounded-3xl border border-white/5 space-y-1">
+            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Reward Points</p>
+            <p class="text-3xl font-sans font-black text-white">{{ profile.reward_points }}</p>
+            <p class="text-[10px] font-bold text-primary-400 uppercase tracking-tighter">Premium Tier</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Personal Information -->
+        <div class="lg:col-span-1 space-y-8">
+            <div class="bg-gray-900 rounded-3xl border border-white/5 overflow-hidden">
+                <div class="px-8 py-6 border-b border-white/5 bg-white/2">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-user-circle text-primary-400"></i>
+                        Profile Metadata
+                    </h3>
+                </div>
+                <div class="p-8 space-y-6">
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Username</p>
+                        <p class="text-sm font-bold text-white">{{ target_user.username }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Email Address</p>
+                        <p class="text-sm font-bold text-white">{{ target_user.email }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Registration Date</p>
+                        <p class="text-sm font-bold text-white">{{ target_user.date_joined|date:"F j, Y" }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Employment</p>
+                        <p class="text-sm font-bold text-white capitalize">{{ profile.income_source|default:"Not specified" }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Monthly Income</p>
+                        <p class="text-sm font-bold text-white">Rs. {{ profile.monthly_income|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-900 rounded-3xl border border-white/5 p-8 space-y-6">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fas fa-location-arrow text-primary-400"></i>
+                    Registered Address
+                </h3>
+                <p class="text-sm text-gray-400 leading-relaxed">
+                    {{ profile.address|default:"No address on file" }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Activity History -->
+        <div class="lg:col-span-2 space-y-8">
+            <div class="bg-gray-900 rounded-3xl border border-white/5 overflow-hidden">
+                <div class="px-8 py-6 border-b border-white/5 bg-white/2 flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-history text-primary-400"></i>
+                        Recent Ecosystem Activity
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-white/2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                            <tr>
+                                <th class="px-8 py-4 text-left">Timeline</th>
+                                <th class="px-6 py-4 text-left">Entity</th>
+                                <th class="px-6 py-4 text-right">Magnitude</th>
+                                <th class="px-6 py-4 text-center">Verdict</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            {% for tx in recent_transactions %}
+                            <tr class="hover:bg-white/2 transition-all">
+                                <td class="px-8 py-6 text-xs text-gray-400">{{ tx.created_at|date:"M d, Y" }}</td>
+                                <td class="px-6 py-6">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-8 w-8 rounded-lg {% if tx.lender == target_user %}bg-emerald-600/10 text-emerald-500{% else %}bg-rose-600/10 text-rose-500{% endif %} flex items-center justify-center text-xs">
+                                            {% if tx.lender == target_user %}<i class="fas fa-arrow-up"></i>{% else %}<i class="fas fa-arrow-down"></i>{% endif %}
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-black text-white uppercase tracking-tighter">
+                                                {% if tx.lender == target_user %}LENT TO {{ tx.borrower.username }}{% else %}BORROWED FROM {{ tx.lender.username }}{% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-6 text-sm font-black text-white text-right">Rs. {{ tx.amount|floatformat:2 }}</td>
+                                <td class="px-6 py-6 text-center">
+                                    <span class="px-3 py-1 text-[9px] font-black rounded-lg uppercase tracking-widest 
+                                        {% if tx.status == 'REPAID' %}bg-primary-600/20 text-primary-400
+                                        {% elif tx.status == 'ACTIVE' %}bg-emerald-600/20 text-emerald-400
+                                        {% else %}bg-white/5 text-gray-500{% endif %}">
+                                        {{ tx.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="px-8 py-16 text-center text-gray-500 text-sm">No transaction records detected.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- KYC Documents Preview -->
+            <div class="bg-gray-900 rounded-3xl border border-white/5 p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-file-invoice text-primary-400"></i>
+                        Verification Repository
+                    </h3>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {% if profile.citizenship_front %}
+                    <div class="group relative aspect-video bg-white/5 rounded-2xl overflow-hidden border border-white/10">
+                        <div class="absolute inset-0 flex items-center justify-center text-gray-600 text-2xl group-hover:scale-110 transition-transform">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <a href="{{ profile.citizenship_front.url }}" target="_blank" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <span class="text-[9px] font-black text-white uppercase tracking-widest border border-white/20 px-3 py-1 rounded-lg">View Front</span>
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if profile.citizenship_back %}
+                    <div class="group relative aspect-video bg-white/5 rounded-2xl overflow-hidden border border-white/10">
+                        <div class="absolute inset-0 flex items-center justify-center text-gray-600 text-2xl group-hover:scale-110 transition-transform">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <a href="{{ profile.citizenship_back.url }}" target="_blank" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <span class="text-[9px] font-black text-white uppercase tracking-widest border border-white/20 px-3 py-1 rounded-lg">View Back</span>
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if profile.selfie %}
+                    <div class="group relative aspect-video bg-white/5 rounded-2xl overflow-hidden border border-white/10">
+                        <div class="absolute inset-0 flex items-center justify-center text-gray-600 text-2xl group-hover:scale-110 transition-transform">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <a href="{{ profile.selfie.url }}" target="_blank" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <span class="text-[9px] font-black text-white uppercase tracking-widest border border-white/20 px-3 py-1 rounded-lg">View Selfie</span>
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if profile.income_proof %}
+                    <div class="group relative aspect-video bg-white/5 rounded-2xl overflow-hidden border border-white/10">
+                        <div class="absolute inset-0 flex items-center justify-center text-gray-600 text-2xl group-hover:scale-110 transition-transform">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <a href="{{ profile.income_proof.url }}" target="_blank" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <span class="text-[9px] font-black text-white uppercase tracking-widest border border-white/20 px-3 py-1 rounded-lg">View Proof</span>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting to eSewa...</title>
+</head>
+<body onload="document.getElementById('esewa_form').submit();">
+    <div style="text-align: center; margin-top: 50px; font-family: sans-serif;">
+        <h2>Redirecting to eSewa Secure Payment...</h2>
+        <p>Please do not refresh the page or click back.</p>
+        
+        <form id="esewa_form" action="{{ esewa_url }}" method="POST">
+            {% for key, value in payload.items %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endfor %}
+            <noscript>
+                <p>JavaScript is disabled. Please click the button below to continue.</p>
+                <button type="submit">Continue to eSewa</button>
+            </noscript>
+        </form>
+    </div>
+</body>
+</html>

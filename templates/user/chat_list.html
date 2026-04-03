@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Conversations - LenDen{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-6">
+    <h1 class="text-3xl font-sans font-extrabold text-slate-900">Conversations</h1>
+
+    <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm divide-y divide-slate-50 overflow-hidden">
+        {% for conv in conversations %}
+        <a href="{% url 'chat_with' conv.other_user.id %}"
+            class="flex items-center gap-4 p-5 hover:bg-slate-50 transition-all group">
+            <div
+                class="h-12 w-12 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center text-lg font-bold font-sans flex-shrink-0 group-hover:bg-primary-100 transition-colors">
+                {{ conv.other_user.username|first|upper }}</div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                    <p class="font-bold text-slate-900">{{ conv.other_user.username }}</p>
+                    <span class="text-[10px] text-slate-400 font-medium">{{ conv.last_message.timestamp|timesince|truncatewords:2 }} ago</span>
+                </div>
+                <p class="text-sm text-slate-400 truncate mt-0.5">{{
+                    conv.last_message.content|truncatechars:50|default:"No messages yet" }}</p>
+            </div>
+            {% if conv.unread_count %}
+            <div
+                class="h-5 min-w-5 px-1 bg-primary-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center flex-shrink-0">
+                {{ conv.unread_count }}</div>
+            {% endif %}
+        </a>
+        {% empty %}
+        <div class="p-20 text-center">
+            <div
+                class="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-200">
+                <i class="fas fa-comments text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-sans font-bold text-slate-900 mb-2">No Conversations</h3>
+            <p class="text-sm text-slate-400">Connect with friends to start messaging them.</p>
+            <a href="{% url 'friends' %}"
+                class="mt-4 inline-block px-6 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-black transition-all text-sm">Find
+                Friends</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

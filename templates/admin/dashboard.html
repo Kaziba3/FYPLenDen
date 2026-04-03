@@ -1,155 +1,102 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends 'admin_base.html' %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/admin.css' %}">
-{% endblock %}
+{% block title %}Overview - Admin Panel{% endblock %}
 
-{% block content %}
-<div class="admin-container">
-    <!-- Sidebar -->
-    <aside class="admin-sidebar">
-        <div class="sidebar-header">
-            <h2><i class="fas fa-user-shield"></i> Admin Panel</h2>
-            <p>Welcome, Admin</p>
-        </div>
-        <ul class="sidebar-menu">
-            <li><a href="{% url 'admin_dashboard' %}" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-            <li><a href="{% url 'admin_users' %}"><i class="fas fa-users"></i> User Management</a></li>
-            <li><a href="{% url 'admin_kyc' %}"><i class="fas fa-id-card"></i> KYC Verification</a></li>
-            <li><a href="{% url 'admin_transactions' %}"><i class="fas fa-exchange-alt"></i> Transactions</a></li>
-            <li><a href="{% url 'admin_reports' %}"><i class="fas fa-chart-bar"></i> Reports & Analytics</a></li>
-            <li><a href="{% url 'admin_disputes' %}"><i class="fas fa-exclamation-triangle"></i> Dispute Resolution</a></li>
-            <li><a href="{% url 'admin_settings' %}"><i class="fas fa-cog"></i> System Settings</a></li>
-        </ul>
-    </aside>
+{% block admin_content %}
+<!-- Header -->
+<div class="flex items-center justify-between">
+    <div>
+        <h1 class="text-2xl font-sans font-extrabold text-white">Platform Overview</h1>
+        <p class="text-sm text-gray-400 mt-1">Real-time ecosystem health metrics</p>
+    </div>
+    <div class="text-right">
+        <p class="text-xs font-bold text-gray-500 uppercase">Logged in as</p>
+        <p class="text-sm font-bold text-white">{{ user.username }}</p>
+    </div>
+</div>
 
-    <!-- Main Content -->
-    <main class="admin-main">
-        <div class="admin-header">
-            <h1>Admin Dashboard</h1>
-            <div class="admin-actions">
-                <button class="btn btn-primary"><i class="fas fa-sync-alt"></i> Refresh</button>
-                <button class="btn btn-success"><i class="fas fa-download"></i> Export Data</button>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="bg-gray-900 rounded-2xl p-6 border border-white/5">
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Users</p>
+            <div class="h-10 w-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400">
+                <i class="fas fa-users"></i>
             </div>
         </div>
-
-        <!-- Stats Overview -->
-        <div class="admin-stats">
-            <div class="card admin-stat-card">
-                <div class="stat-number">{{ total_users }}</div>
-                <div class="stat-label">Total Users</div>
-                <div class="stat-change positive">+{{ new_users_today }} today</div>
-            </div>
-            <div class="card admin-stat-card">
-                <div class="stat-number">${{ total_transactions }}</div>
-                <div class="stat-label">Total Transactions</div>
-            </div>
-            <div class="card admin-stat-card">
-                <div class="stat-number">{{ pending_kyc }}</div>
-                <div class="stat-label">Pending KYC</div>
-                <div class="stat-change warning">Requires attention</div>
-            </div>
-            <div class="card admin-stat-card">
-                <div class="stat-number">{{ active_disputes }}</div>
-                <div class="stat-label">Active Disputes</div>
+        <p class="text-3xl font-sans font-extrabold text-white">{{ total_users }}</p>
+        <p class="text-xs text-primary-400 font-bold mt-2">+{{ new_users_today }} today</p>
+    </div>
+    <div class="bg-gray-900 rounded-2xl p-6 border border-white/5">
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Pending KYC</p>
+            <div class="h-10 w-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-400">
+                <i class="fas fa-id-card"></i>
             </div>
         </div>
-
-        <!-- Recent Activity -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Recent Activity</h2>
+        <p class="text-3xl font-sans font-extrabold text-white">{{ pending_kyc }}</p>
+        <p class="text-xs text-amber-400 font-bold mt-2">Awaiting review</p>
+    </div>
+    <div class="bg-gray-900 rounded-2xl p-6 border border-white/5">
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Active Loans</p>
+            <div class="h-10 w-10 bg-primary-600/20 rounded-xl flex items-center justify-center text-primary-400">
+                <i class="fas fa-money-bill-transfer"></i>
             </div>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>User</th>
-                        <th>Action</th>
-                        <th>Details</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for activity in recent_activities %}
-                    <tr>
-                        <td>{{ activity.timestamp }}</td>
-                        <td>{{ activity.user }}</td>
-                        <td>{{ activity.action }}</td>
-                        <td>{{ activity.details }}</td>
-                        <td>
-                            <span class="badge badge-{{ activity.status_class }}">
-                                {{ activity.status }}
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
-
-        <!-- KYC Verification Queue -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">KYC Verification Queue</h2>
-                <a href="{% url 'admin_kyc' %}" class="btn btn-outline">View All</a>
+        <p class="text-3xl font-sans font-extrabold text-white">{{ active_loans }}</p>
+        <p class="text-xs text-primary-400 font-bold mt-2">In circulation</p>
+    </div>
+    <div class="bg-gray-900 rounded-2xl p-6 border border-white/5">
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Volume</p>
+            <div class="h-10 w-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400">
+                <i class="fas fa-chart-bar"></i>
             </div>
-            <div class="kyc-queue">
-                {% for kyc in kyc_queue %}
-                <div class="kyc-item">
-                    <div class="kyc-user">
-                        <img src="{{ kyc.user.profile_picture }}" alt="{{ kyc.user.name }}">
-                        <div>
-                            <h4>{{ kyc.user.name }}</h4>
-                            <p>{{ kyc.user.email }}</p>
-                        </div>
-                    </div>
-                    <div class="kyc-documents">
-                        <span class="badge badge-info">{{ kyc.documents_count }} documents</span>
-                    </div>
-                    <div class="kyc-actions">
-                        <button class="btn btn-sm btn-success" onclick="verifyKYC('{{ kyc.id }}')">
-                            <i class="fas fa-check"></i> Verify
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="rejectKYC('{{ kyc.id }}')">
-                            <i class="fas fa-times"></i> Reject
-                        </button>
-                        <button class="btn btn-sm btn-outline" onclick="viewDocuments('{{ kyc.id }}')">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                    </div>
-                </div>
+        </div>
+        <p class="text-3xl font-sans font-extrabold text-white">Rs. {{ total_volume|floatformat:0 }}</p>
+        <p class="text-xs text-gray-400 font-bold mt-2">All time</p>
+    </div>
+</div>
+
+<!-- Recent Transactions Table -->
+<div class="bg-gray-900 rounded-2xl border border-white/5 overflow-hidden">
+    <div class="px-6 py-5 border-b border-white/5 flex items-center justify-between">
+        <h2 class="font-sans font-bold text-white">Recent Transactions</h2>
+        <a href="{% url 'admin_reports' %}" class="text-xs font-bold text-primary-400 hover:underline">View All &rarr;</a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-white/5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                <tr>
+                    <th class="px-6 py-4 text-left">Type</th>
+                    <th class="px-6 py-4 text-left">Parties</th>
+                    <th class="px-6 py-4 text-right">Amount</th>
+                    <th class="px-6 py-4 text-center">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {% for tx in recent_transactions %}
+                <tr class="hover:bg-white/2 transition-all">
+                    <td class="px-6 py-4 text-sm font-bold text-white">{{ tx.type }}</td>
+                    <td class="px-6 py-4 text-xs text-gray-400">{{ tx.lender }} → {{ tx.borrower }}</td>
+                    <td class="px-6 py-4 text-sm font-bold text-white text-right">Rs. {{ tx.amount|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest 
+                            {% if tx.status == 'ACTIVE' %}bg-primary-600/20 text-primary-400
+                            {% elif tx.status == 'PENDING' %}bg-amber-500/20 text-amber-400
+                            {% else %}bg-white/10 text-gray-400{% endif %}">
+                            {{ tx.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-12 text-center text-gray-500 text-sm">No transactions yet.</td>
+                </tr>
                 {% endfor %}
-            </div>
-        </div>
-
-        <!-- System Health -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">System Health</h2>
-            </div>
-            <div class="system-health">
-                <div class="health-item">
-                    <div class="health-label">Server Status</div>
-                    <div class="health-status online">
-                        <i class="fas fa-circle"></i> Online
-                    </div>
-                </div>
-                <div class="health-item">
-                    <div class="health-label">Database</div>
-                    <div class="health-status online">
-                        <i class="fas fa-circle"></i> Connected
-                    </div>
-                </div>
-                <div class="health-item">
-                    <div class="health-label">API Response Time</div>
-                    <div class="health-status">
-                        <span class="response-time">{{ api_response_time }}ms</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

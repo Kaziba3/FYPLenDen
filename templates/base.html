@@ -1,165 +1,289 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}PeerLend - P2P Lending Platform{% endblock %}</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>{% block title %}LenDen - Peer-to-Peer Lending Platform{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --dark-green: #1B5E20;
+            --light-green: #4CAF50;
+            --lighter-green: #C8E6C9;
+            --accent-green: #81C784;
+            --bg-color: #F8FAF9;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        outfit: ['Poppins', 'sans-serif'], // Fallback for previous classes
+                    },
+                    colors: {
+                        primary: {
+                            50: 'var(--lighter-green)',
+                            100: 'var(--lighter-green)',
+                            200: 'var(--accent-green)', 
+                            300: 'var(--accent-green)',
+                            400: 'var(--light-green)', 
+                            500: 'var(--light-green)', 
+                            600: 'var(--primary-green)', 
+                            700: 'var(--primary-green)',
+                            800: 'var(--dark-green)', 
+                            900: 'var(--dark-green)', 
+                            950: '#052e16',
+                        },
+                    },
+                    borderRadius: {
+                        '3xl': '1.5rem',
+                        '4xl': '2rem',
+                        '5xl': '3rem',
+                    },
+                    boxShadow: {
+                        'premium': '0 10px 30px -5px rgba(46, 125, 50, 0.1)',
+                        'premium-lg': '0 20px 40px -10px rgba(46, 125, 50, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    {% if not hide_nav %}
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="/" class="nav-logo">
-                <i class="fas fa-handshake"></i> PeerLend
-            </a>
-            
-            {% if user.is_authenticated %}
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a href="{% url 'user_dashboard' %}" class="nav-link">
-                        <i class="fas fa-home"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'marketplace' %}" class="nav-link">
-                        <i class="fas fa-store"></i> Marketplace
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'borrow' %}" class="nav-link">
-                        <i class="fas fa-hand-holding-usd"></i> Borrow
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'lend' %}" class="nav-link">
-                        <i class="fas fa-money-bill-wave"></i> Lend
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'exchange' %}" class="nav-link">
-                        <i class="fas fa-exchange-alt"></i> Exchange
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'friends' %}" class="nav-link">
-                        <i class="fas fa-user-friends"></i> Friends
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'chat' %}" class="nav-link">
-                        <i class="fas fa-comments"></i> Chat
-                    </a>
-                </li>
-            </ul>
-            
-            <div class="user-menu">
-                <div class="user-info">
-                    <div class="avatar">
-                        {% if user.first_name and user.last_name %}
-                            {{ user.first_name|first }}{{ user.last_name|first }}
-                        {% else %}
-                            {{ user.username|first }}
-                        {% endif %}
-                    </div>
-                    <div>
-                        <div class="user-name">
-                            {% if user.get_full_name %}
-                                {{ user.get_full_name }}
-                            {% else %}
-                                {{ user.username }}
-                            {% endif %}
+
+<body class="bg-[var(--bg-color)] text-slate-800 min-h-screen">
+    <!-- Premium Navigation -->
+    <nav class="sticky top-0 z-50 glass-effect border-b border-[var(--accent-green)]/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-12">
+                    <a href="{% url 'landing_page' %}" class="flex items-center gap-2 group">
+                        <div
+                            class="h-10 w-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-600/20 transition-transform group-hover:scale-110">
+                            <i class="fas fa-hand-holding-dollar text-lg"></i>
                         </div>
-                        <div class="user-status">
-                            {% if user.profile.is_kyc_verified %}
-                                <span class="kyc-status kyc-verified">KYC Verified</span>
-                            {% else %}
-                                <span class="kyc-status kyc-pending">KYC Pending</span>
-                            {% endif %}
-                        </div>
+                        <span class="text-2xl font-extrabold tracking-tight text-primary-600">LenDen</span>
+                    </a>
+
+                    <div class="hidden md:flex items-center gap-8">
+                        <a href="{% url 'user_dashboard' %}"
+                            class="text-sm font-bold {% if request.resolver_match.url_name == 'user_dashboard' %}text-primary-600{% else %}text-slate-500 hover:text-primary-600{% endif %} transition-colors">Dashboard</a>
+                        <a href="{% url 'marketplace' %}"
+                            class="text-sm font-bold {% if request.resolver_match.url_name == 'marketplace' %}text-primary-600{% else %}text-slate-500 hover:text-primary-600{% endif %} transition-colors">Marketplace</a>
+                        <a href="{% url 'goods' %}"
+                            class="text-sm font-bold {% if request.resolver_match.url_name == 'goods' %}text-primary-600{% else %}text-slate-500 hover:text-primary-600{% endif %} transition-colors">Goods Exchange</a>
+                        <a href="{% url 'lend' %}"
+                            class="text-sm font-bold {% if request.resolver_match.url_name == 'lend' %}text-primary-600{% else %}text-slate-500 hover:text-primary-600{% endif %} transition-colors">Lend</a>
+                        <a href="{% url 'transactions' %}"
+                            class="text-sm font-bold {% if request.resolver_match.url_name == 'transactions' %}text-primary-600{% else %}text-slate-500 hover:text-primary-600{% endif %} transition-colors">Ledger</a>
                     </div>
                 </div>
-                <div class="dropdown">
-                    <button class="btn btn-secondary btn-small dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
-                        <i class="fas fa-caret-down"></i>
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="{% url 'profile' %}">
-                            <i class="fas fa-user"></i> Profile
-                        </a>
-                        <a class="dropdown-item" href="{% url 'transactions' %}">
-                            <i class="fas fa-history"></i> Transactions
-                        </a>
-                        <a class="dropdown-item" href="{% url 'reviews' %}">
-                            <i class="fas fa-star"></i> Reviews
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'logout' %}">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a>
+
+                <div class="flex items-center gap-6">
+                    {% if user.is_authenticated %}
+                    <!-- Notifications Dropdown -->
+                    <div class="relative group">
+                        <button class="h-10 w-10 flex items-center justify-center text-slate-400 hover:text-primary-600 transition-all relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            {% if unread_notifications_count %}
+                            <span class="absolute top-2 right-2 h-4 w-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                                {{ unread_notifications_count }}
+                            </span>
+                            {% endif %}
+                        </button>
+                        
+                        <div class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-premium-lg border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60] py-2">
+                            <div class="px-4 py-2 border-b border-slate-50 flex items-center justify-between">
+                                <h3 class="text-sm font-bold text-slate-800">Notifications</h3>
+                                <span class="text-[10px] font-bold text-primary-600 uppercase">{{ unread_notifications_count }} New</span>
+                            </div>
+                            <div class="max-h-[300px] overflow-y-auto">
+                                {% for notification in unread_notifications %}
+                                <div class="px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0">
+                                    <p class="text-xs text-slate-600 leading-relaxed">{{ notification.message }}</p>
+                                    <p class="text-[10px] text-slate-400 mt-1">{{ notification.created_at|timesince }} ago</p>
+                                </div>
+                                {% empty %}
+                                <div class="px-4 py-8 text-center">
+                                    <i class="fas fa-bell-slash text-slate-200 text-2xl mb-2 block"></i>
+                                    <p class="text-xs text-slate-400 font-medium">No new notifications</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <a href="#" class="block text-center py-2.5 text-[10px] font-bold text-primary-600 hover:bg-primary-50 transition-colors uppercase tracking-widest">View All</a>
+                        </div>
                     </div>
+
+                    <a href="{% url 'chat' %}"
+                        class="h-10 w-10 flex items-center justify-center text-slate-400 hover:text-primary-600 transition-all relative">
+                        <i class="fas fa-comment-dots text-xl"></i>
+                        <span
+                            class="absolute top-2 right-2 h-2 w-2 bg-primary-400 rounded-full border-2 border-white"></span>
+                    </a>
+                    <a href="{% url 'profile' %}" class="flex items-center gap-3 pl-4 border-l border-slate-200">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-xs font-black text-slate-800 uppercase tracking-tighter">{{ user.username }}
+                            </p>
+                            <p class="text-[10px] font-bold 
+                                {% if user.profile.kyc_status == 'APPROVED' %}text-primary-600
+                                {% elif user.profile.kyc_status == 'REJECTED' %}text-rose-600
+                                {% elif user.profile.kyc_status == 'PENDING' %}text-amber-600
+                                {% else %}text-slate-400{% endif %} uppercase">
+                                {% if user.profile.kyc_status == 'APPROVED' %}Verified Member
+                                {% elif user.profile.kyc_status == 'REJECTED' %}KYC Rejected
+                                {% elif user.profile.kyc_status == 'PENDING' %}KYC Pending
+                                {% else %}KYC Required{% endif %}
+                            </p>
+                        </div>
+                        <div
+                            class="h-10 w-10 rounded-xl bg-primary-600 text-white flex items-center justify-center font-bold shadow-md shadow-primary-600/10">
+                            {{ user.username|first|upper }}
+                        </div>
+                    </a>
+                    <form action="{% url 'logout' %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="h-10 w-10 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-all">
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                    </form>
+                    {% else %}
+                    <a href="{% url 'login' %}"
+                        class="text-sm font-bold text-slate-500 hover:text-primary-600 transition-colors">Sign In</a>
+                    <a href="{% url 'signup' %}" class="btn-primary">Get Started</a>
+                    {% endif %}
                 </div>
             </div>
-            
-            {% else %}
-            <div class="nav-auth">
-                <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
-                <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
-            </div>
-            {% endif %}
         </div>
     </nav>
-    {% endif %}
-    
-    <main class="main-content">
+
+    <!-- Main Content Area -->
+    <main>
         {% if messages %}
-        <div class="container mt-3">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                {{ message }}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+            <div class="space-y-2">
+                {% for message in messages %}
+                {% if 'auth' in message.tags %}
+                    {% if request.resolver_match.url_name in 'login signup forgot_password verify_code reset_password' %}
+                        <div class="p-4 rounded-xl text-sm font-medium shadow-sm animate-in fade-in slide-in-from-top-4 duration-300 {% if 'error' in message.tags %}bg-rose-50 text-rose-700 border border-rose-100{% elif 'warning' in message.tags %}bg-amber-50 text-amber-700 border border-amber-100{% else %}bg-emerald-50 text-emerald-700 border border-emerald-100{% endif %}">
+                            <div class="flex items-center gap-3">
+                                {% if 'error' in message.tags %}
+                                <i class="fas fa-circle-exclamation"></i>
+                                {% elif 'warning' in message.tags %}
+                                <i class="fas fa-triangle-exclamation"></i>
+                                {% else %}
+                                <i class="fas fa-circle-check"></i>
+                                {% endif %}
+                                {{ message }}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% elif 'admin' in message.tags %}
+                    {% if 'admin_' in request.resolver_match.url_name or request.resolver_match.url_name == 'view_user' %}
+                        <div class="p-4 rounded-xl text-sm font-medium shadow-sm animate-in fade-in slide-in-from-top-4 duration-300 {% if 'error' in message.tags %}bg-rose-50 text-rose-700 border border-rose-100{% elif 'warning' in message.tags %}bg-amber-50 text-amber-700 border border-amber-100{% else %}bg-emerald-50 text-emerald-700 border border-emerald-100{% endif %}">
+                            <div class="flex items-center gap-3">
+                                {% if 'error' in message.tags %}
+                                <i class="fas fa-circle-exclamation"></i>
+                                {% elif 'warning' in message.tags %}
+                                <i class="fas fa-triangle-exclamation"></i>
+                                {% else %}
+                                <i class="fas fa-circle-check"></i>
+                                {% endif %}
+                                {{ message }}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="p-4 rounded-xl text-sm font-medium shadow-sm animate-in fade-in slide-in-from-top-4 duration-300 {% if 'error' in message.tags %}bg-rose-50 text-rose-700 border border-rose-100{% elif 'warning' in message.tags %}bg-amber-50 text-amber-700 border border-amber-100{% else %}bg-emerald-50 text-emerald-700 border border-emerald-100{% endif %}">
+                        <div class="flex items-center gap-3">
+                            {% if 'error' in message.tags %}
+                            <i class="fas fa-circle-exclamation"></i>
+                            {% elif 'warning' in message.tags %}
+                            <i class="fas fa-triangle-exclamation"></i>
+                            {% else %}
+                            <i class="fas fa-circle-check"></i>
+                            {% endif %}
+                            {{ message }}
+                        </div>
+                    </div>
+                {% endif %}
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
         {% endif %}
         
         {% block content %}{% endblock %}
     </main>
-    
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3><i class="fas fa-handshake"></i> PeerLend</h3>
-                    <p>Peer-to-Peer Lending & Borrowing Platform</p>
+
+    <!-- Global Footer -->
+    <footer class="bg-white border-t border-[var(--accent-green)]/10 py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="flex items-center justify-center gap-2 mb-6">
+                <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center text-white text-xs">
+                    <i class="fas fa-hand-holding-dollar"></i>
                 </div>
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Safety Guidelines</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Contact</h4>
-                    <p><i class="fas fa-envelope"></i> support@peerlend.com</p>
-                    <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
-                </div>
+                <span class="text-xl font-sans font-extrabold tracking-tight text-primary-600">LenDen</span>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 PeerLend. All rights reserved.</p>
-            </div>
+            <p class="text-sm text-slate-500 font-medium">&copy; 2026 LenDen Ecosystem. Built for Peer-to-Peer Trust.
+            </p>
         </div>
     </footer>
-    
-    <!-- Bootstrap JS for dropdowns -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'js/main.js' %}"></script>
+
     {% block extra_js %}{% endblock %}
+
+    <script>
+        // Premium feature: Independent Session Support
+        // Automatically appends session_id to all links if present in current URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            if (sessionId) {
+                document.querySelectorAll('a').forEach(link => {
+                    if (link.href && link.href.includes(window.location.origin) && !link.href.includes('session_id=')) {
+                        const url = new URL(link.href);
+                        url.searchParams.set('session_id', sessionId);
+                        link.href = url.toString();
+                    }
+                });
+                
+                // Also update form actions
+                document.querySelectorAll('form').forEach(form => {
+                    if (form.action && (form.action.includes(window.location.origin) || !form.action.includes('://'))) {
+                        try {
+                            const url = new URL(form.action, window.location.origin);
+                            if (!url.searchParams.has('session_id')) {
+                                url.searchParams.set('session_id', sessionId);
+                                form.action = url.toString();
+                            }
+                        } catch(e) {}
+                    }
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>

@@ -1,277 +1,281 @@
-{% extends 'user/dashboard.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Marketplace - PeerLend{% endblock %}
+{% block title %}Marketplace - LenDen{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="page-header">
-        <h1><i class="fas fa-store"></i> Marketplace</h1>
-        <p class="text-muted">Find people willing to lend or borrow</p>
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-10">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <h1 class="text-3xl font-sans font-extrabold text-slate-900">Loan Marketplace</h1>
+            <p class="text-slate-500 mt-1">Browse available loan offers from trusted community members</p>
+        </div>
+        <div class="flex items-center gap-3">
+             <button onclick="toggleMap()" class="px-6 py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2">
+                <i class="fas fa-map-marked-alt text-primary-600"></i>
+                <span id="map-btn-text">Show Map</span>
+            </button>
+            <a href="{% url 'lend' %}" class="btn-primary">
+                <i class="fas fa-plus"></i> Post Loan Offer
+            </a>
+        </div>
     </div>
-    
+
+    <!-- Live Map Section (Hidden by default) -->
+    <div id="map-container" class="hidden transition-all duration-500 overflow-hidden">
+        <div class="bg-white rounded-[2rem] border border-slate-100 shadow-xl overflow-hidden relative">
+            <div id="marketplace-map" style="height: 450px; width: 100%; z-index: 10;"></div>
+            <!-- Map Legend/Overlay -->
+            <div class="absolute bottom-6 left-6 z-[1000] bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-white shadow-lg text-xs space-y-2">
+                <p class="font-bold text-slate-900 uppercase tracking-widest text-[10px]">Community Map</p>
+                <div class="flex items-center gap-2">
+                    <span class="h-3 w-3 rounded-full bg-primary-600 border-2 border-white shadow-sm"></span>
+                    <span class="text-slate-600 font-medium">Loan Offers</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="h-3 w-3 rounded-full bg-blue-500 border-2 border-white shadow-sm"></span>
+                    <span class="text-slate-600 font-medium">Goods Lenders</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="h-3 w-3 rounded-full bg-rose-500 border-2 border-white shadow-sm"></span>
+                    <span class="text-slate-600 font-medium">Borrow Requests</span>
+                </div>
+            </div>
+            <!-- Close Button -->
+            <button onclick="toggleMap()" class="absolute top-6 right-6 z-[1000] h-10 w-10 bg-white/90 backdrop-blur-md rounded-xl border border-white shadow-lg flex items-center justify-center text-slate-900 hover:bg-white transition-all">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- Filters -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form id="filterForm" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Transaction Type</label>
-                    <select class="form-control" name="type">
-                        <option value="">All Types</option>
-                        <option value="borrow">Looking to Borrow</option>
-                        <option value="lend">Willing to Lend</option>
-                        <option value="exchange">Goods Exchange</option>
-                    </select>
-                </div>
-                
-                <div class="col-md-3">
-                    <label class="form-label">Amount Range</label>
-                    <div class="d-flex align-items-center">
-                        <input type="range" class="form-range" id="amountRange" min="1000" max="100000" step="1000" value="50000">
-                        <span class="ms-3" id="amountValue">₹50,000</span>
-                    </div>
-                </div>
-                
-                <div class="col-md-3">
-                    <label class="form-label">Interest Rate</label>
-                    <div class="d-flex align-items-center">
-                        <input type="range" class="form-range" id="interestRange" min="1" max="30" step="0.5" value="12">
-                        <span class="ms-3" id="interestValue">12%</span>
-                    </div>
-                </div>
-                
-                <div class="col-md-3">
-                    <label class="form-label">Location</label>
-                    <input type="text" class="form-control" placeholder="City or State">
-                </div>
-                
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-filter"></i> Apply Filters
-                    </button>
-                    <button type="reset" class="btn btn-secondary">
-                        <i class="fas fa-redo"></i> Reset
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Map View -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h3><i class="fas fa-map-marker-alt"></i> Users on Map</h3>
-        </div>
-        <div class="card-body">
-            <div class="map-placeholder" style="height: 300px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-map fa-3x text-muted"></i>
-                <p class="ms-3 mb-0">Interactive map showing users' locations</p>
+    <div class="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
+        <form method="get" class="flex flex-wrap items-end gap-4">
+            <div class="space-y-1.5 flex-1 min-w-[150px]">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Min Amount</label>
+                <input type="number" name="min_amount" value="{{ request.GET.min_amount }}"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all"
+                    placeholder="Rs. 0">
             </div>
-        </div>
-    </div>
-    
-    <!-- Marketplace Listings -->
-    <div class="row">
-        <div class="col-md-8">
-            <h3>Available Listings</h3>
-            
-            <!-- Listing Item -->
-            <div class="card listing-item mb-3">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-2">
-                            <div class="user-avatar text-center">
-                                <div class="avatar-large">JD</div>
-                                <small class="text-muted">John Doe</small>
-                                <div class="rating">
-                                    <i class="fas fa-star text-warning"></i>
-                                    <span>4.8</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <h5>Looking to Borrow</h5>
-                            <p class="text-muted">Need funds for education expenses</p>
-                            <div class="listing-details">
-                                <span class="badge bg-primary">Amount: ₹25,000</span>
-                                <span class="badge bg-success">Interest: 12%</span>
-                                <span class="badge bg-info">Duration: 6 months</span>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <div class="listing-actions">
-                                <p class="text-muted">
-                                    <i class="fas fa-map-marker-alt"></i> Mumbai, Maharashtra
-                                </p>
-                                <div class="friend-indicator">
-                                    <i class="fas fa-user-friends text-success"></i>
-                                    <small>3 mutual friends</small>
-                                </div>
-                                <button class="btn btn-primary btn-sm w-100 mt-2" data-modal="connectModal">
-                                    <i class="fas fa-comment"></i> Connect
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="space-y-1.5 flex-1 min-w-[150px]">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Max Amount</label>
+                <input type="number" name="max_amount" value="{{ request.GET.max_amount }}"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all"
+                    placeholder="No limit">
             </div>
-            
-            <!-- More listings would go here -->
-            
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h4><i class="fas fa-lightbulb"></i> Tips & Guidelines</h4>
-                </div>
-                <div class="card-body">
-                    <div class="tips-list">
-                        <div class="tip-item">
-                            <i class="fas fa-check-circle text-success"></i>
-                            <p>Always verify user profiles before transacting</p>
-                        </div>
-                        <div class="tip-item">
-                            <i class="fas fa-check-circle text-success"></i>
-                            <p>Check mutual friends for trust verification</p>
-                        </div>
-                        <div class="tip-item">
-                            <i class="fas fa-check-circle text-success"></i>
-                            <p>Use the chat system for all communications</p>
-                        </div>
-                        <div class="tip-item">
-                            <i class="fas fa-check-circle text-success"></i>
-                            <p>Set clear repayment terms in chat</p>
-                        </div>
-                        <div class="tip-item">
-                            <i class="fas fa-check-circle text-success"></i>
-                            <p>Report any suspicious activity immediately</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="space-y-1.5 flex-1 min-w-[150px]">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Max Interest %</label>
+                <input type="number" name="max_interest" value="{{ request.GET.max_interest }}"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all"
+                    placeholder="Any">
             </div>
-        </div>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-filter"></i> Apply Filters
+            </button>
+        </form>
     </div>
-</div>
 
-<!-- Connect Modal -->
-<div class="modal" id="connectModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Connect with John Doe</h3>
-            <button class="close-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="alert alert-warning">
-                <i class="fas fa-exclamation-triangle"></i>
-                <strong>Warning:</strong> You have no mutual friends with this user. Proceed with caution.
-            </div>
-            
-            <div class="user-profile mb-4">
-                <div class="avatar-large">JD</div>
+    <!-- Loan Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for offer in loan_offers %}
+        <div class="premium-card p-6 space-y-5">
+            <!-- Lender Info -->
+            <a href="{% url 'view_public_profile' offer.lender.id %}" class="flex items-center gap-3 group/lender">
+                <div
+                    class="h-12 w-12 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center text-lg font-bold font-sans group-hover/lender:bg-primary-600 group-hover/lender:text-white transition-all">
+                    {{ offer.lender.username|first|upper }}
+                </div>
                 <div>
-                    <h4>John Doe</h4>
-                    <p>Rating: 4.8/5 (24 reviews)</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Mumbai, Maharashtra</p>
+                    <p class="font-bold text-slate-900 group-hover/lender:text-primary-600 transition-all">{{ offer.lender.username }}</p>
+                    <div class="flex items-center gap-1.5">
+                        {% if offer.lender.profile.kyc_verified %}
+                        <span
+                            class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">KYC
+                            ✓</span>
+                        {% endif %}
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Trust: {{ offer.lender.profile.trust_score }}/100</span>
+                    </div>
+                </div>
+                <div class="ml-auto text-right">
+                    <div class="flex items-center gap-0.5 text-amber-400">
+                        {% if offer.lender.profile.rating and offer.lender.profile.rating > 0 %}
+                        <i class="fas fa-star text-xs"></i>
+                        <span class="text-sm font-bold text-slate-900">{{ offer.lender.profile.rating|floatformat:2 }}</span>
+                        {% else %}
+                        <span class="text-xs font-bold text-slate-400">Not Rated</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-            
-            <form>
-                <div class="form-group">
-                    <label class="form-label">Initial Message</label>
-                    <textarea class="form-control" rows="3" placeholder="Introduce yourself and your purpose..."></textarea>
+
+            <!-- Loan Details -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-slate-50 rounded-xl p-3 text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Amount</p>
+                    <p class="text-sm font-extrabold text-slate-900 mt-1">Rs. {{ offer.amount|floatformat:0 }}</p>
                 </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Purpose</label>
-                    <select class="form-control">
-                        <option>Interested in lending</option>
-                        <option>Interested in borrowing</option>
-                        <option>Goods exchange</option>
-                        <option>Just connecting</option>
-                    </select>
+                <div class="bg-slate-50 rounded-xl p-3 text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Interest</p>
+                    <p class="text-sm font-extrabold text-rose-500 mt-1">{{ offer.interest_rate }}%</p>
                 </div>
-            </form>
+                <div class="bg-slate-50 rounded-xl p-3 text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Duration</p>
+                    <p class="text-sm font-extrabold text-slate-900 mt-1">{{ offer.duration_months }}mo</p>
+                </div>
+            </div>
+
+            {% if offer.description %}
+            <p class="text-sm text-slate-500 leading-relaxed">{{ offer.description|truncatewords:20 }}</p>
+            {% endif %}
+
+            <a href="{% url 'borrow_offer' offer.id %}"
+                class="block w-full text-center py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-black transition-all text-sm">
+                Request This Loan
+            </a>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary close-modal">Cancel</button>
-            <button class="btn btn-primary">Start Chat</button>
+        {% empty %}
+        <div class="col-span-3 bg-white rounded-[2rem] p-16 text-center border border-slate-100">
+            <div
+                class="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-200">
+                <i class="fas fa-store text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-sans font-bold text-slate-900 mb-2">No Loan Offers Yet</h3>
+            <p class="text-sm text-slate-400">Be the first to post a loan offer in your community.</p>
         </div>
+        {% endfor %}
     </div>
 </div>
-{% endblock %}
 
-{% block extra_css %}
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+{{ map_data|json_script:"map-data-json" }}
+
+<script>
+    let map = null;
+    let markers = [];
+    const mapData = JSON.parse(document.getElementById('map-data-json').textContent);
+
+    function toggleMap() {
+        const container = document.getElementById('map-container');
+        const btnText = document.getElementById('map-btn-text');
+        
+        if (container.classList.contains('hidden')) {
+            container.classList.remove('hidden');
+            btnText.innerText = 'Hide Map';
+            initMap();
+        } else {
+            container.classList.add('hidden');
+            btnText.innerText = 'Show Map';
+        }
+    }
+
+    function initMap() {
+        if (map) return;
+        
+        // Center of Nepal as fallback
+        const center = [28.3949, 84.1240];
+        map = L.map('marketplace-map', {
+            zoomControl: false
+        }).setView(center, 7);
+        
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        }).addTo(map);
+
+        // Add Markers
+        const bounds = [];
+        
+        const getMarkerIcon = (type) => {
+            let color = 'bg-primary-600';
+            if (type === 'goods') color = 'bg-blue-500';
+            if (type === 'borrow_request') color = 'bg-rose-500';
+            
+            return L.divIcon({
+                html: `<div class="h-4 w-4 ${color} rounded-full border-2 border-white shadow-lg animate-pulse"></div>`,
+                className: 'custom-div-icon',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+        };
+
+        mapData.forEach(item => {
+            if (item.lat && item.lng) {
+                const marker = L.marker([item.lat, item.lng], { icon: getMarkerIcon(item.type) }).addTo(map);
+                
+                let detailsHtml = '';
+                if (item.type === 'loan_offer') {
+                    detailsHtml = `<p class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-block">LOAN: Rs. ${item.amount}</p>`;
+                } else if (item.type === 'goods') {
+                    detailsHtml = `<p class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block">GOODS: ${item.item_name}</p>`;
+                } else if (item.type === 'borrow_request') {
+                    detailsHtml = `<p class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full inline-block">REQUEST: Rs. ${item.amount}</p>`;
+                }
+
+                marker.bindPopup(`
+                    <div class="p-2 space-y-2" style="min-width: 150px">
+                        <div class="flex items-center gap-2">
+                            <div class="h-8 w-8 rounded-lg bg-slate-50 text-slate-600 flex items-center justify-center font-bold text-xs border border-slate-100">
+                                ${item.username.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900 m-0">${item.username}</p>
+                                <p class="text-[10px] text-amber-500 m-0">
+                                    ${item.rating > 0 ? '<i class="fas fa-star mr-1"></i>' + item.rating : 'Not Rated'}
+                                </p>
+                            </div>
+                        </div>
+                        ${detailsHtml}
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <a href="/chat/?user=${item.id}" class="text-center py-2 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-lg hover:bg-slate-200 transition-all">
+                                Chat
+                            </a>
+                            <a href="/profile/${item.id}/" class="text-center py-2 bg-slate-900 text-white text-[10px] font-bold rounded-lg hover:bg-black transition-all">
+                                View
+                            </a>
+                        </div>
+                    </div>
+                `, {
+                    offset: [0, -5],
+                    className: 'premium-popup'
+                });
+                bounds.push([item.lat, item.lng]);
+            }
+        });
+
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+        }
+    }
+
+    // Try to get user location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            if (map) {
+                const userLoc = [pos.coords.latitude, pos.coords.longitude];
+                L.marker(userLoc).addTo(map).bindPopup("Your Location").openPopup();
+                map.setView(userLoc, 13);
+            }
+        });
+    }
+</script>
+
 <style>
-    .listing-item {
-        transition: all 0.3s;
-        border-left: 4px solid var(--primary-green);
+    .premium-popup .leaflet-popup-content-wrapper {
+        border-radius: 1rem;
+        padding: 0;
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
     }
-    
-    .listing-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    .avatar-large {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: var(--lighter-green);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--primary-green);
-        font-weight: 600;
-        font-size: 24px;
-        margin: 0 auto 10px;
-    }
-    
-    .rating {
-        margin-top: 5px;
-    }
-    
-    .listing-details {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 10px;
-    }
-    
-    .friend-indicator {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        margin-bottom: 10px;
-    }
-    
-    .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-    
-    .tips-list {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .tip-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .tip-item i {
-        margin-top: 3px;
-    }
-    
-    .tip-item p {
+    .premium-popup .leaflet-popup-content {
         margin: 0;
-        font-size: 14px;
+    }
+    .premium-popup .leaflet-popup-tip-container {
+        display: none;
     }
 </style>
 {% endblock %}

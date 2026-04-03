@@ -1,55 +1,120 @@
-{% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}Login - PeerLend{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - LenDen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        outfit: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#C8E6C9',
+                            100: '#C8E6C9',
+                            200: '#81C784', 
+                            300: '#81C784',
+                            400: '#4CAF50', 
+                            500: '#4CAF50', 
+                            600: '#2E7D32', 
+                            700: '#2E7D32',
+                            800: '#1B5E20', 
+                            900: '#1B5E20', 
+                            950: '#052e16',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+</head>
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/auth.css' %}">
-{% endblock %}
-
-{% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h1><i class="fas fa-handshake"></i> Welcome Back!</h1>
-            <p>Login to your PeerLend account</p>
+<body class="min-h-screen bg-[var(--bg-color)] flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-10">
+            <a href="{% url 'landing_page' %}" class="inline-flex items-center gap-3 group">
+                <div
+                    class="h-12 w-12 bg-primary-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary-600/20 transition-transform group-hover:scale-110">
+                    <i class="fas fa-hand-holding-dollar text-xl"></i>
+                </div>
+                <span class="text-3xl font-sans font-extrabold text-primary-600">LenDen</span>
+            </a>
+            <p class="mt-3 text-sm text-gray-500 font-medium">Sign in to your ecosystem account</p>
         </div>
-        <div class="auth-body">
+
+        <!-- Card -->
+        <div class="bg-white rounded-[2.5rem] shadow-premium-lg border border-primary-100/50 p-10 relative overflow-hidden">
+            <!-- Decorative Elements -->
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary-50/50 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-primary-50/50 rounded-full blur-3xl"></div>
+
+            <!-- Messages -->
             {% if messages %}
+            <div class="mb-8 space-y-3 relative z-10">
                 {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
+                <div class="p-4 rounded-2xl text-sm font-semibold shadow-sm animate-in fade-in slide-in-from-top-4 duration-300 {% if 'error' in message.tags %}bg-rose-50 text-rose-700 border border-rose-100{% elif 'warning' in message.tags %}bg-amber-50 text-amber-700 border border-amber-100{% else %}bg-emerald-50 text-emerald-700 border border-emerald-100{% endif %}">
+                    <div class="flex items-center gap-3">
+                        {% if 'error' in message.tags %}
+                        <i class="fas fa-circle-exclamation text-rose-500"></i>
+                        {% elif 'warning' in message.tags %}
+                        <i class="fas fa-triangle-exclamation text-amber-500"></i>
+                        {% else %}
+                        <i class="fas fa-circle-check text-emerald-500"></i>
+                        {% endif %}
+                        {{ message }}
+                    </div>
                 </div>
                 {% endfor %}
+            </div>
             {% endif %}
-            
-            <form method="POST" class="auth-form">
+
+            <form method="post" action="{% url 'login' %}" class="space-y-6 relative z-10">
                 {% csrf_token %}
-                <div class="form-group">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" id="email" name="email" class="form-control" required placeholder="Enter your email">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Username</label>
+                    <div class="relative group">
+                        <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm transition-colors group-focus-within:text-primary-600"></i>
+                        <input type="text" name="username" required autocomplete="username"
+                            class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-semibold text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white transition-all"
+                            placeholder="Enter your username">
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" name="password" class="form-control" required placeholder="Enter your password">
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center ml-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Password</label>
+                        <a href="{% url 'forgot_password' %}"
+                            class="text-[10px] font-bold text-primary-600 hover:text-primary-700 transition-colors uppercase tracking-wider">Forgot?</a>
+                    </div>
+                    <div class="relative group">
+                        <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm transition-colors group-focus-within:text-primary-600"></i>
+                        <input type="password" name="password" required autocomplete="current-password"
+                            class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-semibold text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white transition-all"
+                            placeholder="Enter your password">
+                    </div>
                 </div>
-                
-                <div class="form-group form-check">
-                    <input type="checkbox" id="remember" name="remember" class="form-check-input">
-                    <label for="remember" class="form-check-label">Remember me</label>
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-large" style="width: 100%;">
-                    <i class="fas fa-sign-in-alt"></i> Login
+                <button type="submit"
+                    class="w-full py-4 bg-primary-600 text-white font-bold rounded-2xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20 transform hover:-translate-y-1 active:translate-y-0 mt-2">
+                    Sign In to LenDen
                 </button>
-                
-                <div class="auth-footer">
-                    <p>Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
-                    <p><a href="{% url 'forgot_password' %}">Forgot your password?</a></p>
-                </div>
             </form>
+
+            <p class="text-center text-sm text-slate-400 mt-8 relative z-10">
+                New to LenDen? <a href="{% url 'signup' %}" class="font-bold text-primary-600 hover:text-primary-700 transition-colors">Create
+                    Account</a>
+            </p>
         </div>
     </div>
-</div>
-{% endblock %}
+</body>
+
+</html>
