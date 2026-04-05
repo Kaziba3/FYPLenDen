@@ -8,25 +8,25 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/asgi/
 """
 
 import os
+
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'LenDen.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LenDen.settings")
 # Initialize Django ASGI application early to ensure the AppRegistry
 # is populated before importing code that may import ORM models.
 django_asgi_app = get_asgi_application()
 
-from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-from frontend.channels_middleware import MultiSessionCookieMiddleware
-import frontend.routing
+from channels.routing import ProtocolTypeRouter, URLRouter
 
-application = ProtocolTypeRouter({
-    "http": django_asgi_app,
-    "websocket": MultiSessionCookieMiddleware(
-        AuthMiddlewareStack(
-            URLRouter(
-                frontend.routing.websocket_urlpatterns
-            )
-        )
-    ),
-})
+import frontend.routing
+from frontend.channels_middleware import MultiSessionCookieMiddleware
+
+application = ProtocolTypeRouter(
+    {
+        "http": django_asgi_app,
+        "websocket": MultiSessionCookieMiddleware(
+            AuthMiddlewareStack(URLRouter(frontend.routing.websocket_urlpatterns))
+        ),
+    }
+)
