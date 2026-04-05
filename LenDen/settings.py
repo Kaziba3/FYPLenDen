@@ -34,6 +34,10 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 # ALLOWED_HOSTS is split by comma to allow multiple domains. Asterisk (*) means all domains.
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
+# Required for Render to handle HTTPS correctly and avoid CSRF (403) errors on forms
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com', 'https://127.0.0.1']
+
 
 # Application definition
 
