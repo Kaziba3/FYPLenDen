@@ -6,6 +6,7 @@ import random
 import string
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
@@ -115,7 +116,7 @@ def signup_view(request):
         # Send email
         subject = "Verify your LenDen Account"
         message = f"Hello {username},\n\nYour verification code for signup is: {code}\n\nThis code will expire in 10 minutes."
-        from_email = "noreply@lenden.com"
+        from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = [email]
 
         try:
@@ -1432,7 +1433,7 @@ def initiate_password_change(request):
     # Send email
     subject = "Your LenDen Verification Code"
     message = f"Hello {user.username},\n\nYour verification code for security update is: {code}\n\nThis code will expire in 10 minutes."
-    from_email = "noreply@lenden.com"
+    from_email = settings.DEFAULT_FROM_EMAIL
     recipient_list = [email]
 
     try:
@@ -1459,7 +1460,7 @@ def forgot_password(request):
             # Send email
             subject = "Your LenDen Verification Code"
             message = f"Hello {user.username},\n\nYour verification code for password reset is: {code}\n\nThis code will expire in 10 minutes."
-            from_email = "noreply@lenden.com"
+            from_email = settings.DEFAULT_FROM_EMAIL
             recipient_list = [email]
 
             try:
