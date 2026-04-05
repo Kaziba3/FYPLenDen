@@ -155,15 +155,15 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Email Settings
-# Set to 'django.core.mail.backends.smtp.EmailBackend' for production
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"  # Replace with your SMTP host
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_TIMEOUT = 10  # Prevent indefinite loading if Google blocks the connection
-EMAIL_HOST_USER = "np05cp4a230088@iic.edu.np"
-EMAIL_HOST_PASSWORD = "aqzg ohdu ttst smdt"
-DEFAULT_FROM_EMAIL = "LenDen <noreply@lenden.com>"
+# Use environment variables for all email configs so you can easily switch providers
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com") 
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
+EMAIL_TIMEOUT = 10 
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "np05cp4a230088@iic.edu.np")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "aqzg ohdu ttst smdt")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "LenDen <noreply@lenden.com>")
 
 # Channels Settings
 ASGI_APPLICATION = "LenDen.asgi.application"
