@@ -153,10 +153,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email Settings
 # Set to 'django.core.mail.backends.smtp.EmailBackend' for production
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com' # Replace with your SMTP host
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_TIMEOUT = 10  # Prevent indefinite loading if Google blocks the connection
 EMAIL_HOST_USER = 'np05cp4a230088@iic.edu.np' 
 EMAIL_HOST_PASSWORD = "aqzg ohdu ttst smdt"
 DEFAULT_FROM_EMAIL = 'LenDen <noreply@lenden.com>'
