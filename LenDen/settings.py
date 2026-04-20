@@ -156,14 +156,24 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Email Settings
-# Render aggressively blocks ALL outbound SMTP ports (25, 465, 587, 2525) now.
-# Therefore, we use the Brevo HTTP API (Port 443) which Render CANNOT block!
-EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
-
-# We read the Brevo API Key instead of the SMTP Password
-ANYMAIL = {
-    "SENDINBLUE_API_KEY": os.environ.get("BREVO_API_KEY", "your-fallback-key-for-local-if-needed"),
-}
+if not DEBUG:
+    # Render / Production (Uses HTTP API to bypass SMTP block)
+    BREVO_API_KEY = os.environ.get("BREVO_API_KEY") or os.environ.get("SENDINBLUE_API_KEY")
+    if BREVO_API_KEY:
+        EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
+        ANYMAIL = {
+            "SENDINBLUE_API_KEY": BREVO_API_KEY,
+        }
+    else:
+        EMAIL_BACKEND = "django.core.mail.backends.dummy.EmailBackend"
+else:
+    # Local Development (Back to standard SMTP/Gmail configuration)
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'np05cp4a230088@iic.edu.np')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'zyhc znwq lvfk tnxy')
 
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "LenDen <noreply@lenden.com>")
 

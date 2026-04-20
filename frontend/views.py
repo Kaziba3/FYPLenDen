@@ -180,6 +180,10 @@ def signup_verify_otp(request):
                     referrer_profile.save()
                     profile.reward_points += 50
                     profile.save()
+                    Notification.objects.create(
+                        user=referrer_profile.user,
+                        message=f"{user.username} signed up using your referral code! You received 100 reward points."
+                    )
                     messages.success(
                         request,
                         f"Referral bonus applied! You got 50 points and {referrer_profile.user.username} got 100 points.",
@@ -1124,6 +1128,9 @@ def profile_edit(request):
             except ValueError:
                 pass
 
+        if "profile_picture" in request.FILES:
+            profile.profile_picture = request.FILES["profile_picture"]
+
         profile.save()
         messages.success(request, "Profile updated successfully!")
         return redirect("profile")
@@ -1363,24 +1370,106 @@ def admin_reports(request):
     if not request.user.is_superuser:
         return HttpResponseForbidden("Access denied")
 
-    from django.db.models import Avg, Sum
+    import csv
+    from django.db.models import Avg, Sum, Count, Q
+    from django.http import HttpResponse
 
-    # All time report
-    all_time_stats = {
-        "period": "All Time",
-        "transaction_count": MoneyTransaction.objects.count(),
-        "total_amount": MoneyTransaction.objects.aggregate(total=Sum("amount"))["total"]
-        or 0,
-        "avg_interest": MoneyTransaction.objects.aggregate(avg=Avg("interest_rate"))[
-            "avg"
-        ]
-        or 0,
+    export_type = request.GET.get("export")
+
+    if export_type == "users":
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="users_report.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["ID", "Username", "Email", "Full Name", "KYC Status", "Rating", "Reward Points", "Joined"])
+        
+        users = User.objects.select_related("profile").all()
+        for u in users:
+            profile = getattr(u, 'profile', None)
+            writer.writerow([
+                u.id, u.username, u.email, 
+                profile.full_name if profile else "",
+                profile.kyc_status if profile else "",
+                profile.rating if profile else "",
+                profile.reward_points if profile else "",
+                u.date_joined.strftime("%Y-%m-%d %H:%M")
+            ])
+        return response
+
+    elif export_type == "money":
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="money_transactions.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["ID", "Lender", "Borrower", "Amount (Rs.)", "Interest Rate (%)", "Status", "Payment Status", "Created"])
+        
+        txs = MoneyTransaction.objects.select_related("lender", "borrower").all()
+        for tx in txs:
+            writer.writerow([
+                tx.id, tx.lender.username, tx.borrower.username, 
+                tx.amount, tx.interest_rate, tx.status, tx.payment_status,
+                tx.created_at.strftime("%Y-%m-%d %H:%M")
+            ])
+        return response
+
+    elif export_type == "goods":
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="goods_exchanges.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["ID", "Lender", "Borrower", "Item Name", "Exchange Type", "Status", "Created"])
+        
+        txs = GoodsTransaction.objects.select_related("lender", "borrower", "item").all()
+        for tx in txs:
+            writer.writerow([
+                tx.id, tx.lender.username, tx.borrower.username, 
+                tx.item.item_name, tx.item.exchange_type, tx.status,
+                tx.created_at.strftime("%Y-%m-%d %H:%M")
+            ])
+        return response
+
+    # ---------------------------------------------
+    # Aggregate Dashboard Metrics
+    # ---------------------------------------------
+    
+    # 1. User Metrics
+    total_users = User.objects.count()
+    kyc_approved = UserProfile.objects.filter(kyc_status='APPROVED').count()
+    avg_trust = UserProfile.objects.aggregate(avg=Avg('rating'))['avg'] or 0
+
+    # 2. Money Metrics
+    total_loans = MoneyTransaction.objects.count()
+    total_volume = MoneyTransaction.objects.aggregate(total=Sum("amount"))["total"] or 0
+    active_loans = MoneyTransaction.objects.filter(status="ACTIVE").count()
+    repaid_loans = MoneyTransaction.objects.filter(status="REPAID").count()
+    defaulted_loans = MoneyTransaction.objects.filter(status="DEFAULTED").count()
+    avg_interest = MoneyTransaction.objects.aggregate(avg=Avg("interest_rate"))["avg"] or 0
+
+    # 3. Goods Metrics
+    listed_goods = GoodsExchange.objects.count()
+    completed_exchanges = GoodsTransaction.objects.filter(status="COMPLETED").count()
+    
+    context = {
+        "metrics": {
+            "users": {
+                "total": total_users,
+                "kyc_approved": kyc_approved,
+                "avg_trust": avg_trust
+            },
+            "money": {
+                "total_loans": total_loans,
+                "volume": total_volume,
+                "active": active_loans,
+                "repaid": repaid_loans,
+                "defaulted": defaulted_loans,
+                "avg_interest": avg_interest
+            },
+            "goods": {
+                "listed": listed_goods,
+                "completed": completed_exchanges
+            }
+        }
     }
 
-    # Add more periods if needed, but template expects a list 'reports'
-    reports = [all_time_stats]
+    return render(request, "admin/reports.html", context)
 
-    return render(request, "admin/reports.html", {"reports": reports})
 
 
 @login_required
@@ -1516,7 +1605,7 @@ def reset_password(request):
         return redirect("forgot_password")
 
     if request.method == "POST":
-        password = request.POST.get("password")
+        password = request.POST.get("new_password")
         confirm_password = request.POST.get("confirm_password")
 
         if password == confirm_password:

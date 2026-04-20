@@ -14,6 +14,7 @@ KYC_STATUS_CHOICES = (
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    profile_picture = models.ImageField(upload_to="profile_pics/", null=True, blank=True)
     full_name = models.CharField(max_length=255)
     age = models.PositiveIntegerField()
     income_source = models.CharField(max_length=255)

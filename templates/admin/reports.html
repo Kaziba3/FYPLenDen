@@ -3,40 +3,137 @@
 {% block title %}Analytics & Reports - Admin | LenDen{% endblock %}
 
 {% block admin_content %}
-<div>
-    <h1 class="text-2xl font-sans font-extrabold text-white">Analytics & Reports</h1>
-    <p class="text-sm text-gray-400 mt-1">Platform-wide financial health summary</p>
+<div class="mb-8">
+    <h1 class="text-3xl font-sans font-extrabold text-white">Analytics & Reports</h1>
+    <p class="text-sm text-gray-400 mt-2">Comprehensive platform statistics and data exports.</p>
 </div>
 
-<!-- Summary Cards -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    {% for report in reports %}
-    <div class="bg-gray-900 rounded-2xl border border-white/5 p-6 space-y-4">
-        <div class="flex items-center justify-between">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ report.period }}</p>
-            <div class="h-10 w-10 bg-primary-600/20 rounded-xl flex items-center justify-center text-primary-400">
-                <i class="fas fa-chart-area"></i>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Analytical Cards -->
+    <div class="lg:col-span-2 space-y-6">
+        
+        <!-- User Metrics -->
+        <div class="bg-gray-900 rounded-[2rem] border border-white/5 p-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-6 opacity-5">
+                <i class="fas fa-users text-8xl text-primary-500"></i>
+            </div>
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 border-b border-white/10 pb-4">User Base Statistics</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
+                <div class="space-y-1">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Total Registered</p>
+                    <p class="text-3xl font-sans font-extrabold text-white">{{ metrics.users.total }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">KYC Verified</p>
+                    <p class="text-3xl font-sans font-extrabold text-emerald-400">{{ metrics.users.kyc_approved }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Avg User Rating</p>
+                    <div class="flex items-end gap-1">
+                        <p class="text-3xl font-sans font-extrabold text-primary-400">{{ metrics.users.avg_trust|floatformat:1|default:"0.0" }}</p>
+                        <span class="text-gray-500 text-sm font-bold mb-1">/5.0</span>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="space-y-2">
-            <div class="flex justify-between items-center py-2 border-b border-white/5">
-                <span class="text-xs font-bold text-gray-500 uppercase">Transactions</span>
-                <span class="text-sm font-bold text-white">{{ report.transaction_count }}</span>
+
+        <!-- Financial Metrics -->
+        <div class="bg-gray-900 rounded-[2rem] border border-white/5 p-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-6 opacity-5">
+                <i class="fas fa-money-bill-transfer text-8xl text-emerald-500"></i>
             </div>
-            <div class="flex justify-between items-center py-2 border-b border-white/5">
-                <span class="text-xs font-bold text-gray-500 uppercase">Total Volume</span>
-                <span class="text-sm font-bold text-white">Rs. {{ report.total_amount|floatformat:0 }}</span>
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 border-b border-white/10 pb-4">Financial Capital Hub</h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8 relative z-10">
+                <div class="space-y-1">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Total Loan Volume</p>
+                    <p class="text-4xl font-sans font-extrabold text-white">Rs. {{ metrics.money.volume|floatformat:0 }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Global Avg. Interest</p>
+                    <p class="text-4xl font-sans font-extrabold text-primary-400">{{ metrics.money.avg_interest|floatformat:2 }}%</p>
+                </div>
             </div>
-            <div class="flex justify-between items-center py-2">
-                <span class="text-xs font-bold text-gray-500 uppercase">Avg. Interest</span>
-                <span class="text-sm font-bold text-primary-400">{{ report.avg_interest|floatformat:2 }}%</span>
+
+            <div class="grid grid-cols-3 gap-6 relative z-10 pt-6 border-t border-white/5">
+                <div class="space-y-1">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Active Loans</p>
+                    <p class="text-2xl font-sans font-extrabold text-blue-400">{{ metrics.money.active }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Repaid Loans</p>
+                    <p class="text-2xl font-sans font-extrabold text-emerald-400">{{ metrics.money.repaid }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Defaulted</p>
+                    <p class="text-2xl font-sans font-extrabold text-rose-500">{{ metrics.money.defaulted }}</p>
+                </div>
             </div>
         </div>
+
+        <!-- Goods Marketplace Metrics -->
+        <div class="bg-gray-900 rounded-[2rem] border border-white/5 p-8 relative overflow-hidden">
+             <div class="absolute top-0 right-0 p-6 opacity-5">
+                <i class="fas fa-boxes-packing text-8xl text-indigo-500"></i>
+            </div>
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 border-b border-white/10 pb-4">Goods Exchange Market</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
+                <div class="space-y-1">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Items Listed</p>
+                    <p class="text-3xl font-sans font-extrabold text-white">{{ metrics.goods.listed }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Completed Exchanges</p>
+                    <p class="text-3xl font-sans font-extrabold text-indigo-400">{{ metrics.goods.completed }}</p>
+                </div>
+            </div>
+        </div>
+
     </div>
-    {% empty %}
-    <div class="col-span-3 bg-gray-900 rounded-2xl border border-white/5 p-12 text-center">
-        <p class="text-gray-500">No report data available yet.</p>
+
+    <!-- Export & Utilities Panel -->
+    <div class="space-y-6">
+        <div class="bg-primary-900/30 rounded-[2rem] border border-primary-500/30 p-8">
+            <div class="h-12 w-12 bg-primary-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-primary-600/30">
+                <i class="fas fa-file-export text-xl"></i>
+            </div>
+            <h3 class="text-xl font-sans font-bold text-white mb-2">Export Data</h3>
+            <p class="text-xs text-primary-200/70 mb-8">Download raw system data as CSV documents for localized analysis or auditing.</p>
+
+            <div class="space-y-4">
+                <a href="?export=users" class="flex items-center justify-between p-4 rounded-xl bg-gray-900/50 hover:bg-primary-600 border border-white/5 hover:border-primary-500 transition-all group">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-users text-gray-400 group-hover:text-white transition-colors"></i>
+                        <span class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">User Registry</span>
+                    </div>
+                    <i class="fas fa-download text-gray-500 group-hover:text-white transition-colors"></i>
+                </a>
+
+                <a href="?export=money" class="flex items-center justify-between p-4 rounded-xl bg-gray-900/50 hover:bg-primary-600 border border-white/5 hover:border-primary-500 transition-all group">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-money-bill-transfer text-gray-400 group-hover:text-white transition-colors"></i>
+                        <span class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">Financial Ledger</span>
+                    </div>
+                    <i class="fas fa-download text-gray-500 group-hover:text-white transition-colors"></i>
+                </a>
+
+                <a href="?export=goods" class="flex items-center justify-between p-4 rounded-xl bg-gray-900/50 hover:bg-primary-600 border border-white/5 hover:border-primary-500 transition-all group">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-boxes-stacked text-gray-400 group-hover:text-white transition-colors"></i>
+                        <span class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">Goods Exchanges</span>
+                    </div>
+                    <i class="fas fa-download text-gray-500 group-hover:text-white transition-colors"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 rounded-[2rem] border border-white/5 p-8 text-center text-gray-500">
+            <i class="fas fa-shield-halved text-3xl mb-3 opacity-50 block"></i>
+            <p class="text-xs font-medium uppercase tracking-widest mb-1">Security Notice</p>
+            <p class="text-[10px] leading-relaxed opacity-70">
+                Downloaded reports may contain sensitive user information. Handle files with strict confidentiality policies.
+            </p>
+        </div>
     </div>
-    {% endfor %}
 </div>
 {% endblock %}

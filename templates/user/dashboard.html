@@ -168,15 +168,15 @@
             <div class="bg-white rounded-[2rem] p-6 border-2 border-amber-100 shadow-xl shadow-amber-50/50 space-y-4 relative overflow-hidden group">
                 <div class="absolute -top-6 -right-6 h-20 w-20 bg-amber-50 rounded-full group-hover:scale-150 transition-transform"></div>
                 
-                <div class="flex items-center gap-4 relative z-10">
-                    <div class="h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-slate-400">
+                <a href="{% url 'view_public_profile' trans.borrower.id %}" class="flex items-center gap-4 relative z-10 group/user">
+                    <div class="h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-slate-400 group-hover/user:bg-primary-600 group-hover/user:text-white transition-all">
                         {{ trans.borrower.username|first|upper }}
                     </div>
                     <div>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Borrower</p>
-                        <p class="text-sm font-bold text-slate-900">{{ trans.borrower.username }}</p>
+                        <p class="text-sm font-bold text-slate-900 group-hover/user:text-primary-600 transition-all">{{ trans.borrower.username }}</p>
                     </div>
-                </div>
+                </a>
 
                 <div class="grid grid-cols-2 gap-4 pt-2">
                     <div>
@@ -227,19 +227,19 @@
                                 <td class="px-8 py-6 text-xs text-slate-500 font-medium">{{ tx.date|date:"D, M d" }}
                                 </td>
                                 <td class="px-4 py-6">
-                                    <div class="flex items-center gap-3">
+                                    <a href="{% url 'view_public_profile' tx.other_user.id %}" class="flex items-center gap-3 group/user">
                                         <div
-                                            class="h-10 w-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm
+                                            class="h-10 w-10 rounded-xl flex items-center justify-center transition-transform group-hover/user:scale-110 shadow-sm
                                             {% if 'Lent' in tx.type %}bg-emerald-50 text-emerald-600{% else %}bg-indigo-50 text-indigo-600{% endif %}">
                                             {% if "Lent" in tx.type %}<i class="fas fa-arrow-right-from-bracket"></i>{% else %}<i class="fas fa-arrow-left-long"></i>{% endif %}
                                         </div>
                                         <div class="flex flex-col">
-                                            <span class="text-sm font-bold text-slate-900">{{ tx.type }}</span>
+                                            <span class="text-sm font-bold text-slate-900 group-hover/user:text-primary-600 transition-all">{{ tx.type }}</span>
                                             <span
                                                 class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Verified
                                                 Node</span>
                                         </div>
-                                    </div>
+                                    </a>
                                 </td>
                                 <td class="px-4 py-6 text-sm font-extrabold text-slate-900 text-right">Rs. {{                                     tx.amount|floatformat:2 }}</td>
                                 <td class="px-8 py-6 text-center">

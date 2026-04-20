@@ -47,17 +47,22 @@
         <div class="lg:col-span-2 flex flex-col min-h-0">
             {% if active_chat %}
             <!-- Chat Header -->
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-white">
-                <div
-                    class="h-10 w-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center font-bold">
-                    {{ active_chat_user.username|first|upper }}</div>
-                <div class="flex-1">
-                    <p class="font-sans font-bold text-slate-900">{{ active_chat_user.username }}</p>
-                    <div class="flex items-center gap-2">
-                        <span id="connection-status" class="h-1.5 w-1.5 rounded-full bg-slate-300"></span>
-                        <p id="connection-text" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Connecting...</p>
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="h-10 w-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center font-bold">
+                        {{ active_chat_user.username|first|upper }}</div>
+                    <div class="flex-1">
+                        <p class="font-sans font-bold text-slate-900">{{ active_chat_user.username }}</p>
+                        <div class="flex items-center gap-2">
+                            <span id="connection-status" class="h-1.5 w-1.5 rounded-full bg-slate-300"></span>
+                            <p id="connection-text" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Connecting...</p>
+                        </div>
                     </div>
                 </div>
+                <a href="{% url 'view_public_profile' active_chat_user.id %}" class="px-4 py-2 bg-slate-50 text-slate-900 text-[10px] font-bold rounded-lg hover:bg-slate-900 hover:text-white transition-all uppercase tracking-widest border border-slate-100">
+                    View Profile
+                </a>
             </div>
 
             <!-- Messages -->

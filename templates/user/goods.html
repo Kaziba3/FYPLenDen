@@ -37,12 +37,12 @@
                     </div>
                 </div>
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
+                    <a href="{% url 'view_public_profile' item.owner.id %}" class="flex items-center gap-2 group/owner">
                         <div
-                            class="h-8 w-8 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center text-sm font-bold">
+                            class="h-8 w-8 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center text-sm font-bold group-hover/owner:bg-primary-600 group-hover/owner:text-white transition-all">
                             {{ item.owner.username|first|upper }}</div>
-                        <span class="text-xs font-bold text-slate-600">{{ item.owner.username }}</span>
-                    </div>
+                        <span class="text-xs font-bold text-slate-600 group-hover/owner:text-primary-600 transition-all">{{ item.owner.username }}</span>
+                    </a>
                     {% if item.owner.profile.rating %}
                     <div class="flex items-center text-amber-500 text-xs font-bold">
                          <i class="fas fa-star mr-1"></i> {{ item.owner.profile.rating }}
