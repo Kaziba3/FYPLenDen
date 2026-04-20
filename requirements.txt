@@ -13,3 +13,4 @@ cbor2==5.8.0
 msgpack==1.1.2
 ujson==5.11.0
 py-ubjson==0.16.1
+Pillow==10.4.0
